@@ -1,7 +1,14 @@
 import { useMemo, useState } from "react";
 
-type View = "directory" | "hash" | "bst";
+type View = "directory" | "setup" | "hash" | "bst";
 type MethodId = "linear" | "chaining" | "quadratic" | "double";
+type HashConfig = {
+  tableSize: number;
+  questionCount: number;
+  values: number[];
+  includeDeletes: boolean;
+  mode: "default" | "custom";
+};
 type HashStep = {
   action: "INSERT" | "DELETE";
   value: number;
@@ -46,38 +53,87 @@ const methodInfo: Record<MethodId, { title: string; short: string; formula: stri
   },
 };
 
-function table(...values: Array<[number, string]>) {
-  const result = Array(7).fill(EMPTY);
-  values.forEach(([index, value]) => { result[index] = value; });
-  return result;
+const recommendedValues = [18, 29, 40, 15, 26, 51, 22, 62, 73, 84, 35, 46];
+
+function probeIndex(method: MethodId, key: number, attempt: number, size: number) {
+  const primary = key % size;
+  if (method === "linear") return (primary + attempt) % size;
+  if (method === "quadratic") return (primary + attempt * attempt) % size;
+  if (method === "double") {
+    const secondary = 1 + (key % (size - 1));
+    return (primary + attempt * secondary) % size;
+  }
+  return primary;
 }
 
-const hashLessons: Record<MethodId, HashStep[]> = {
-  linear: [
-    { action: "INSERT", value: 18, hash: 4, slot: 4, before: table(), after: table([4, "18"]), note: "Bucket 4 is empty, so 18 is inserted directly." },
-    { action: "INSERT", value: 25, hash: 4, slot: 5, before: table([4, "18"]), after: table([4, "18"], [5, "25"]), note: "Bucket 4 is occupied. Move one step forward to bucket 5." },
-    { action: "INSERT", value: 32, hash: 4, slot: 6, before: table([4, "18"], [5, "25"]), after: table([4, "18"], [5, "25"], [6, "32"]), note: "Buckets 4 and 5 are occupied, so probing continues to bucket 6." },
-    { action: "DELETE", value: 25, hash: 4, slot: 5, before: table([4, "18"], [5, "25"], [6, "32"]), after: table([4, "18"], [5, DEL], [6, "32"]), note: "A tombstone preserves the probe chain after deletion." },
-  ],
-  quadratic: [
-    { action: "INSERT", value: 18, hash: 4, slot: 4, before: table(), after: table([4, "18"]), note: "The first hash points to the available bucket 4." },
-    { action: "INSERT", value: 25, hash: 4, slot: 5, before: table([4, "18"]), after: table([4, "18"], [5, "25"]), note: "The first quadratic offset is 1², leading to bucket 5." },
-    { action: "INSERT", value: 32, hash: 4, slot: 1, before: table([4, "18"], [5, "25"]), after: table([1, "32"], [4, "18"], [5, "25"]), note: "The second offset is 2²: (4 + 4) mod 7 = 1." },
-    { action: "DELETE", value: 25, hash: 4, slot: 5, before: table([1, "32"], [4, "18"], [5, "25"]), after: table([1, "32"], [4, "18"], [5, DEL]), note: "Bucket 5 becomes a tombstone to preserve lookups." },
-  ],
-  double: [
-    { action: "INSERT", value: 18, hash: 4, slot: 4, before: table(), after: table([4, "18"]), note: "The primary hash points to the available bucket 4." },
-    { action: "INSERT", value: 25, hash: 4, slot: 5, before: table([4, "18"]), after: table([4, "18"], [5, "25"]), note: "For 25, h₂ = 1. One secondary step leads to bucket 5." },
-    { action: "INSERT", value: 32, hash: 4, slot: 0, before: table([4, "18"], [5, "25"]), after: table([0, "32"], [4, "18"], [5, "25"]), note: "For 32, h₂ = 3. The next probe is (4 + 3) mod 7 = 0." },
-    { action: "DELETE", value: 25, hash: 4, slot: 5, before: table([0, "32"], [4, "18"], [5, "25"]), after: table([0, "32"], [4, "18"], [5, DEL]), note: "The deleted slot is marked to keep the probe sequence valid." },
-  ],
-  chaining: [
-    { action: "INSERT", value: 18, hash: 4, slot: 4, before: table(), after: table([4, "18"]), note: "A new chain begins at bucket 4." },
-    { action: "INSERT", value: 25, hash: 4, slot: 4, before: table([4, "18"]), after: table([4, "18 → 25"]), note: "25 has the same hash, so it is appended to the chain." },
-    { action: "INSERT", value: 32, hash: 4, slot: 4, before: table([4, "18 → 25"]), after: table([4, "18 → 25 → 32"]), note: "The third colliding value is appended to bucket 4's chain." },
-    { action: "DELETE", value: 25, hash: 4, slot: 4, before: table([4, "18 → 25 → 32"]), after: table([4, "18 → 32"]), note: "Only 25 is unlinked; the rest of the chain remains." },
-  ],
-};
+function findSlot(method: MethodId, key: number, current: string[], inserting: boolean) {
+  const size = current.length;
+  if (method === "chaining") return key % size;
+
+  for (let attempt = 0; attempt < size; attempt += 1) {
+    const index = probeIndex(method, key, attempt, size);
+    if (inserting && (current[index] === EMPTY || current[index] === DEL)) return index;
+    if (!inserting && current[index] === String(key)) return index;
+  }
+
+  return current.findIndex((value) => inserting ? value === EMPTY || value === DEL : value === String(key));
+}
+
+function generateHashLesson(method: MethodId, config: HashConfig): HashStep[] {
+  let current = Array(config.tableSize).fill(EMPTY) as string[];
+  const active: number[] = [];
+  const steps: HashStep[] = [];
+  let valueCursor = 0;
+
+  for (let index = 0; index < config.questionCount; index += 1) {
+    const nearlyFull = method !== "chaining" && active.length >= config.tableSize - 1;
+    const scheduledDelete = config.includeDeletes && active.length > 1 && (index === 5 || index === 8 || nearlyFull);
+    const action: "INSERT" | "DELETE" = scheduledDelete ? "DELETE" : "INSERT";
+    const value = action === "DELETE"
+      ? active[Math.min(1, active.length - 1)]
+      : (config.values[valueCursor] ?? recommendedValues[valueCursor % recommendedValues.length] + Math.floor(valueCursor / recommendedValues.length) * config.tableSize);
+
+    if (action === "INSERT") valueCursor += 1;
+    const hash = ((value % config.tableSize) + config.tableSize) % config.tableSize;
+    const before = [...current];
+    const slot = findSlot(method, value, current, action === "INSERT");
+    if (slot < 0) break;
+
+    if (method === "chaining") {
+      const chain = current[slot] ? current[slot].split(" → ").map(Number) : [];
+      if (action === "INSERT") {
+        chain.push(value);
+        active.push(value);
+      } else {
+        const chainIndex = chain.indexOf(value);
+        if (chainIndex >= 0) chain.splice(chainIndex, 1);
+        active.splice(active.indexOf(value), 1);
+      }
+      current = current.map((item, itemIndex) => itemIndex === slot ? chain.join(" → ") : item);
+    } else {
+      current = current.map((item, itemIndex) => itemIndex === slot ? (action === "INSERT" ? String(value) : DEL) : item);
+      if (action === "INSERT") active.push(value);
+      else active.splice(active.indexOf(value), 1);
+    }
+
+    const collision = slot !== hash && action === "INSERT";
+    steps.push({
+      action,
+      value,
+      hash,
+      slot,
+      before,
+      after: [...current],
+      note: action === "DELETE"
+        ? method === "chaining" ? `${value} is unlinked while the rest of bucket ${slot} remains.` : `Bucket ${slot} becomes a tombstone so probing can continue.`
+        : method === "chaining" && before[slot] ? `${value} collides at bucket ${hash} and is appended to its chain.`
+          : collision ? `${value} starts at ${hash}; the ${methodInfo[method].short.toLowerCase()} rule places it in bucket ${slot}.`
+            : `Bucket ${slot} is empty, so ${value} is inserted directly.`,
+    });
+  }
+
+  return steps;
+}
 
 const bstSteps = [
   { value: 8, slot: 0, before: ["", "", "", "", "", "", ""], after: ["8", "", "", "", "", "", ""], path: "The tree is empty, so 8 becomes the root." },
@@ -103,20 +159,28 @@ function Icon({ name, className = "h-4 w-4" }: { name: "check" | "back" | "grid"
 export default function App() {
   const [view, setView] = useState<View>("directory");
   const [method, setMethod] = useState<MethodId>("linear");
+  const [session, setSession] = useState<{ config: HashConfig; lesson: HashStep[] } | null>(null);
 
   function openMethod(id: MethodId) {
     setMethod(id);
+    setSession(null);
+    setView("setup");
+  }
+
+  function startLab(config: HashConfig) {
+    setSession({ config, lesson: generateHashLesson(method, config) });
     setView("hash");
   }
 
   return (
     <main className="min-h-screen bg-[#090c0b] text-[#e9efec]">
-      <Header view={view} onBack={() => setView(view === "directory" ? "directory" : view === "hash" ? "directory" : "directory")} />
+      <Header view={view} onBack={() => setView(view === "hash" ? "setup" : "directory")} />
       <div className="mx-auto flex max-w-[1536px]">
         <Navigation view={view} method={method} setView={setView} openMethod={openMethod} />
         <div className="min-w-0 flex-1">
           {view === "directory" && <HashDirectory openMethod={openMethod} openBst={() => setView("bst")} />}
-          {view === "hash" && <HashPractice key={method} method={method} onDirectory={() => setView("directory")} />}
+          {view === "setup" && <QuestionSetup method={method} onStart={startLab} onBack={() => setView("directory")} />}
+          {view === "hash" && session && <HashPractice key={`${method}-${session.config.mode}-${session.config.tableSize}`} method={method} lesson={session.lesson} config={session.config} onDirectory={() => setView("directory")} />}
           {view === "bst" && <BstPractice />}
         </div>
       </div>
@@ -165,7 +229,7 @@ function Navigation({ view, method, setView, openMethod }: { view: View; method:
             key={id}
             onClick={() => openMethod(id)}
             className={`block w-full rounded-md px-3 py-2 text-left text-[11px] transition ${
-              view === "hash" && method === id ? "bg-white/[0.05] text-[#dbe2de]" : "text-[#66716b] hover:text-[#aeb8b3]"
+              (view === "hash" || view === "setup") && method === id ? "bg-white/[0.05] text-[#dbe2de]" : "text-[#66716b] hover:text-[#aeb8b3]"
             }`}
           >
             {methodInfo[id].title}
@@ -242,8 +306,145 @@ function MethodCard({ id, index, onClick }: { id: MethodId; index: number; onCli
   );
 }
 
-function HashPractice({ method, onDirectory }: { method: MethodId; onDirectory: () => void }) {
-  const lesson = hashLessons[method];
+function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart: (config: HashConfig) => void; onBack: () => void }) {
+  const info = methodInfo[method];
+  const [choice, setChoice] = useState<"default" | "custom">("default");
+  const [tableSize, setTableSize] = useState(11);
+  const [questionCount, setQuestionCount] = useState(10);
+  const [valueText, setValueText] = useState("18, 29, 40, 15, 26, 51, 22, 62");
+  const [includeDeletes, setIncludeDeletes] = useState(true);
+
+  function begin() {
+    if (choice === "default") {
+      onStart({ tableSize: 11, questionCount: 10, values: recommendedValues, includeDeletes: true, mode: "default" });
+      return;
+    }
+    const parsed = valueText.split(",").map((value) => Number(value.trim())).filter((value) => Number.isFinite(value));
+    onStart({
+      tableSize,
+      questionCount,
+      values: parsed.length ? parsed : recommendedValues,
+      includeDeletes,
+      mode: "custom",
+    });
+  }
+
+  return (
+    <div>
+      <PageTitle eyebrow="Practice setup" title={info.title} description="Choose a ready-made learning path or control the question configuration yourself." action={<button onClick={onBack} className="flex items-center gap-2 text-xs text-[#7b8680] hover:text-white"><Icon name="back" /> Directory</button>} />
+      <section className="mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-10">
+        <div className="mb-7">
+          <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#e8eeeb]">How would you like to practice?</h2>
+          <p className="mt-1.5 text-xs text-[#717c76]">You can change this choice whenever you restart the lab.</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <button
+            onClick={() => setChoice("default")}
+            className={`relative rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "default" ? "border-[#b8f34a]/55 bg-[#b8f34a]/[0.055]" : "border-white/[0.08] bg-[#0d1210] hover:border-white/[0.16]"}`}
+          >
+            <div className="mb-5 flex items-start justify-between">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#b8f34a]/10 text-[#b8f34a]"><Icon name="check" className="h-5 w-5" /></span>
+              <span className="rounded-full bg-[#b8f34a] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-[#111610]">Recommended</span>
+            </div>
+            <h3 className="text-base font-semibold text-[#e9eeec]">Use default questions</h3>
+            <p className="mt-2 text-xs leading-5 text-[#748079]">A curated set of 10 questions that gradually introduces collisions, probing, and deletion.</p>
+            <div className="mt-5 flex items-center gap-2">
+              {["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[9px] font-medium ${index === 0 ? "bg-[#b8f34a]/10 text-[#a9dc50]" : index === 1 ? "bg-[#eac46c]/10 text-[#d6b45f]" : "bg-[#ff8a76]/10 text-[#dd7b6a]"}`}>{label}</span>)}
+            </div>
+          </button>
+
+          <button
+            onClick={() => setChoice("custom")}
+            className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "custom" ? "border-[#70d6ff]/50 bg-[#70d6ff]/[0.045]" : "border-white/[0.08] bg-[#0d1210] hover:border-white/[0.16]"}`}
+          >
+            <div className="mb-5 flex items-start justify-between">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#70d6ff]/10 font-mono text-lg text-[#70d6ff]">≡</span>
+              <span className="rounded-full border border-white/[0.08] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-[#6f7a74]">Flexible</span>
+            </div>
+            <h3 className="text-base font-semibold text-[#e9eeec]">Customize questions</h3>
+            <p className="mt-2 text-xs leading-5 text-[#748079]">Set the table size, number of questions, source values, and whether deletion is included.</p>
+            <div className="mt-5 font-mono text-[10px] text-[#6d929f]">YOUR VALUES · YOUR CONFIG</div>
+          </button>
+        </div>
+
+        {choice === "default" ? (
+          <div className="animate-in mt-6 rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 sm:p-6">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <div><h3 className="text-sm font-semibold text-[#dfe6e2]">Recommended question path</h3><p className="mt-1 text-[11px] text-[#68736d]">Table size 11 · Primary hash: key mod 11 · Insert and delete</p></div>
+              <span className="text-xs font-semibold text-[#b8f34a]">10 questions</span>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              {Array.from({ length: 10 }, (_, index) => {
+                const difficulty = index < 3 ? "Easy" : index < 7 ? "Medium" : "Hard";
+                const action = index === 5 || index === 8 ? "Delete" : "Insert";
+                const values = [18, 29, 40, 15, 26, 29, 51, 22, 18, 62];
+                return <div key={index} className="rounded-lg border border-white/[0.06] bg-[#090d0b] p-3"><div className="mb-2 flex justify-between"><span className="font-mono text-[9px] text-[#56615b]">Q{index + 1}</span><span className={`text-[8px] font-semibold uppercase ${difficulty === "Easy" ? "text-[#9ac944]" : difficulty === "Medium" ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{difficulty}</span></div><p className="font-mono text-[11px] text-[#bcc5c0]">{action} {values[index]}</p></div>;
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="animate-in mt-6 rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 sm:p-6">
+            <div className="mb-6"><h3 className="text-sm font-semibold text-[#dfe6e2]">Question configuration</h3><p className="mt-1 text-[11px] text-[#68736d]">Prime table sizes are used to keep every probe sequence valid.</p></div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Setting label="Table size" help="Number of available buckets">
+                <select
+                  value={tableSize}
+                  onChange={(e) => {
+                    const size = Number(e.target.value);
+                    setTableSize(size);
+                    if (!includeDeletes && questionCount > size) setQuestionCount(size);
+                  }}
+                  className="setting-input"
+                >
+                  {[5, 7, 11, 13].map((size) => <option key={size} value={size}>{size} buckets</option>)}
+                </select>
+              </Setting>
+              <Setting label="Number of questions" help="Length of this practice session">
+                <select value={questionCount} onChange={(e) => setQuestionCount(Number(e.target.value))} className="setting-input">
+                  {[5, 8, 10, 12, 15].filter((count) => includeDeletes || count <= tableSize).map((count) => <option key={count} value={count}>{count} questions</option>)}
+                </select>
+              </Setting>
+              <div className="sm:col-span-2">
+                <Setting label="Insertion values" help="Comma-separated integers; extra values are generated if needed">
+                  <input value={valueText} onChange={(e) => setValueText(e.target.value)} className="setting-input font-mono" />
+                </Setting>
+              </div>
+              <Setting label="Operations" help="Choose which operations can appear">
+                <label className="flex h-11 items-center justify-between rounded-lg border border-white/[0.09] bg-[#090d0b] px-3 text-xs text-[#aeb7b2]">
+                  Include deletion
+                  <input
+                    type="checkbox"
+                    checked={includeDeletes}
+                    onChange={(e) => {
+                      setIncludeDeletes(e.target.checked);
+                      if (!e.target.checked && questionCount > tableSize) setQuestionCount(tableSize);
+                    }}
+                    className="h-4 w-4 accent-[#b8f34a]"
+                  />
+                </label>
+              </Setting>
+              <Setting label="Collision strategy" help="Determined by the selected problem type">
+                <div className="flex h-11 items-center rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 text-xs text-[#7c8781]">{info.title}</div>
+              </Setting>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex items-center justify-between border-t border-white/[0.07] pt-6">
+          <p className="hidden text-[11px] text-[#626d67] sm:block">{choice === "default" ? "Best for first-time practice" : "The lab is generated from your settings"}</p>
+          <button onClick={begin} className="ml-auto flex items-center gap-2 rounded-lg bg-[#b8f34a] px-5 py-3 text-xs font-bold text-[#111610] transition hover:bg-[#c7fa64]">Generate questions <Icon name="arrow" className="h-3.5 w-3.5" /></button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Setting({ label, help, children }: { label: string; help: string; children: React.ReactNode }) {
+  return <label className="block"><span className="mb-1 block text-xs font-medium text-[#cbd3cf]">{label}</span><span className="mb-2 block text-[10px] text-[#626d67]">{help}</span>{children}</label>;
+}
+
+function HashPractice({ method, lesson, config, onDirectory }: { method: MethodId; lesson: HashStep[]; config: HashConfig; onDirectory: () => void }) {
   const info = methodInfo[method];
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState(lesson[0].before);
@@ -297,7 +498,7 @@ function HashPractice({ method, onDirectory }: { method: MethodId; onDirectory: 
               <div className="px-5 py-7 sm:px-7">
                 <TaskNumber number="1" title="Calculate the primary hash">
                   <div className="flex items-center gap-3 font-mono text-sm text-[#89948e]">
-                    <span>{current.value} mod 7 =</span>
+                    <span>{current.value} mod {config.tableSize} =</span>
                     <input value={hash} onChange={(e) => { setHash(e.target.value.replace(/\D/g, "").slice(0, 1)); setStatus("idle"); }} placeholder="?" className="h-10 w-14 rounded-lg border border-white/[0.1] bg-[#090d0b] text-center text-white outline-none focus:border-[#b8f34a]/50" />
                   </div>
                 </TaskNumber>
@@ -323,7 +524,7 @@ function HashPractice({ method, onDirectory }: { method: MethodId; onDirectory: 
             </div>
           )}
         </section>
-        <LessonAside method={method} />
+        <LessonAside method={method} config={config} />
       </div>
     </div>
   );
@@ -462,14 +663,14 @@ function Feedback({ kind, children }: { kind: "hint" | "wrong" | "correct"; chil
   return <div className={`animate-in mt-5 rounded-lg border px-4 py-3 text-xs leading-5 ${styles[kind]}`}>{kind === "correct" && <Icon name="check" className="mr-2 inline h-3.5 w-3.5" />}{children}</div>;
 }
 
-function LessonAside({ method }: { method: MethodId }) {
+function LessonAside({ method, config }: { method: MethodId; config: HashConfig }) {
   return (
     <aside className="border-t border-white/[0.07] bg-[#0b0f0d] px-6 py-7 xl:border-l xl:border-t-0">
       <AsideTitle>Method notes</AsideTitle>
-      <AsideItem number="01" title="Primary hash">All values begin at key mod 7 in this configuration.</AsideItem>
+      <AsideItem number="01" title="Primary hash">All values begin at key mod {config.tableSize} in this configuration.</AsideItem>
       <AsideItem number="02" title="Collision rule">{methodInfo[method].description}</AsideItem>
       <AsideItem number="03" title="Deletion">{method === "chaining" ? "Unlink only the matching value from its chain." : "Use a DEL marker so searches can continue probing."}</AsideItem>
-      <div className="mt-8 grid grid-cols-2 gap-2"><Stat label="Table size" value="7" /><Stat label="Load max." value={method === "chaining" ? "> 1.0" : "0.7"} /></div>
+      <div className="mt-8 grid grid-cols-2 gap-2"><Stat label="Table size" value={String(config.tableSize)} /><Stat label="Questions" value={String(config.questionCount)} /></div>
     </aside>
   );
 }

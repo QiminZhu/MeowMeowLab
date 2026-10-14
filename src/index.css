@@ -30,6 +30,22 @@ button {
   cursor: pointer;
 }
 
+.setting-input {
+  height: 2.75rem;
+  width: 100%;
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 0.5rem;
+  background: #090d0b;
+  padding: 0 0.75rem;
+  color: #dce3df;
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.setting-input:focus {
+  border-color: rgb(184 243 74 / 0.55);
+}
+
 button:focus-visible,
 select:focus-visible,
 input:focus-visible,
