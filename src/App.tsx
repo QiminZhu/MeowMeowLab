@@ -120,45 +120,11 @@ const treeQuestionBank = [
 ] as const;
 
 function playCompletionChime() {
-  const AudioContext = window.AudioContext;
-  if (!AudioContext) return;
-
-  const context = new AudioContext();
-  const master = context.createGain();
-  const start = context.currentTime;
-  const notes = [
-    { frequency: 523.25, delay: 0 },
-    { frequency: 659.25, delay: 0.09 },
-    { frequency: 783.99, delay: 0.18 },
-    { frequency: 1046.5, delay: 0.31 },
-  ];
-
-  master.gain.setValueAtTime(0.0001, start);
-  master.gain.exponentialRampToValueAtTime(0.08, start + 0.025);
-  master.gain.exponentialRampToValueAtTime(0.0001, start + 0.85);
-  master.connect(context.destination);
-
-  notes.forEach(({ frequency, delay }, index) => {
-    const oscillator = context.createOscillator();
-    const noteGain = context.createGain();
-    const noteStart = start + delay;
-    const noteEnd = noteStart + (index === notes.length - 1 ? 0.5 : 0.28);
-
-    oscillator.type = index === notes.length - 1 ? "sine" : "triangle";
-    oscillator.frequency.setValueAtTime(frequency, noteStart);
-    noteGain.gain.setValueAtTime(0.0001, noteStart);
-    noteGain.gain.exponentialRampToValueAtTime(index === notes.length - 1 ? 0.7 : 0.45, noteStart + 0.018);
-    noteGain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
-
-    oscillator.connect(noteGain);
-    noteGain.connect(master);
-    oscillator.start(noteStart);
-    oscillator.stop(noteEnd);
+  const audio = new Audio("/sounds/question-complete.mp3");
+  audio.volume = 0.55;
+  void audio.play().catch(() => {
+    // Browsers may block audio when playback is not initiated by a user action.
   });
-
-  window.setTimeout(() => {
-    void context.close();
-  }, 1100);
 }
 
 const recommendedValues = [18, 29, 40, 15, 26, 51, 22, 62, 73, 84, 35, 46];
