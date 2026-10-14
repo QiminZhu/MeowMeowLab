@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Lato:wght@400;700;900&display=swap');
 @import 'tailwindcss';
 
 :root {
-  font-family: 'Inter', system-ui, sans-serif;
-  color-scheme: dark;
-  background: #080b0a;
+  font-family: 'Lato', system-ui, sans-serif;
+  color-scheme: light;
+  background: #f5f7f8;
   font-synthesis: none;
 }
 
@@ -16,7 +16,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #080b0a;
+  background: #f5f7f8;
 }
 
 button,
@@ -33,24 +33,25 @@ button {
 .setting-input {
   height: 2.75rem;
   width: 100%;
-  border: 1px solid rgb(255 255 255 / 0.09);
+  border: 1px solid #d9e1e6;
   border-radius: 0.5rem;
-  background: #090d0b;
+  background: #ffffff;
   padding: 0 0.75rem;
-  color: #dce3df;
+  color: #29404f;
   font-size: 0.75rem;
   outline: none;
 }
 
 .setting-input:focus {
-  border-color: rgb(184 243 74 / 0.55);
+  border-color: #1865f2;
+  box-shadow: 0 0 0 3px rgb(24 101 242 / 0.1);
 }
 
 button:focus-visible,
 select:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #b8f34a;
+  outline: 2px solid #1865f2;
   outline-offset: 2px;
 }
 
@@ -59,7 +60,7 @@ textarea:focus-visible {
 }
 
 .scrollbar {
-  scrollbar-color: #29332e transparent;
+  scrollbar-color: #b9c5cc transparent;
   scrollbar-width: thin;
 }
 
@@ -71,7 +72,7 @@ textarea:focus-visible {
 .scrollbar::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: #29332e;
+  background: #b9c5cc;
   background-clip: padding-box;
 }
 
