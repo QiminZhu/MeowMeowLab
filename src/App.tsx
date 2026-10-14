@@ -494,43 +494,7 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
     <div>
       <PageTitle eyebrow="Practice setup" title={info.title} description="Choose a ready-made learning path or control the question configuration yourself." action={<button onClick={onBack} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="back" /> Directory</button>} />
       <section className="mx-auto max-w-6xl px-6 py-10 sm:px-10 lg:px-12">
-        <div className="mb-7">
-          <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#1f3342]">How would you like to practice?</h2>
-          <p className="mt-1.5 text-sm text-[#647782]">You can change this choice whenever you restart the lab.</p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <button
-            onClick={() => setChoice("default")}
-            className={`relative rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "default" ? "border-[#14a36f]/55 bg-[#14a36f]/[0.055]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}
-          >
-            <div className="mb-5 flex items-start justify-between">
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#14a36f]/10 text-[#14a36f]"><Icon name="check" className="h-5 w-5" /></span>
-              <span className="rounded-full bg-[#14a36f] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#ffffff]">Recommended</span>
-            </div>
-            <h3 className="text-base font-semibold text-[#1f3342]">Use default questions</h3>
-            <p className="mt-2 text-sm leading-5 text-[#647782]">A curated set of 10 questions that gradually introduces collisions, probing, and deletion.</p>
-            <div className="mt-5 flex items-center gap-2">
-              {["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[11px] font-medium ${index === 0 ? "bg-[#14a36f]/10 text-[#16875f]" : index === 1 ? "bg-[#b7791f]/10 text-[#d6b45f]" : "bg-[#c84b3a]/10 text-[#dd7b6a]"}`}>{label}</span>)}
-            </div>
-          </button>
-
-          <button
-            onClick={() => setChoice("custom")}
-            className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "custom" ? "border-[#1865f2]/50 bg-[#1865f2]/[0.045]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}
-          >
-            <div className="mb-5 flex items-start justify-between">
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#1865f2]/10 font-mono text-lg text-[#1865f2]">≡</span>
-              <span className="rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#6b7d88]">Flexible</span>
-            </div>
-            <h3 className="text-base font-semibold text-[#1f3342]">Customize questions</h3>
-            <p className="mt-2 text-sm leading-5 text-[#647782]">Set the table size, number of questions, source values, and whether deletion is included.</p>
-            <div className="mt-5 font-mono text-xs text-[#6d929f]">YOUR VALUES · YOUR CONFIG</div>
-          </button>
-        </div>
-
-        {choice === "default" ? (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
+        <div className="animate-in rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <div><h3 className="text-base font-semibold text-[#29404f]">Recommended question bank</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Select one complete question · 10 iterations per question · Table size 11</p></div>
               <span className="text-sm font-semibold text-[#14a36f]">Question {selectedQuestion + 1} selected</span>
@@ -541,7 +505,7 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
                 return (
                   <button
                     key={question.id}
-                    onClick={() => setSelectedQuestion(index)}
+                    onClick={() => { setSelectedQuestion(index); setChoice("default"); }}
                     className={`min-h-[150px] rounded-xl border p-4 text-left transition ${
                       selected ? "border-[#1865f2] bg-[#1865f2]/[0.055] shadow-[0_0_0_3px_rgba(24,101,242,0.08)]" : "border-[#d9e1e6] bg-[#f7f9fa] hover:border-[#1865f2]/40 hover:bg-[#ffffff]"
                     }`}
@@ -563,9 +527,22 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
               <span><strong className="text-[#29404f]">Operations:</strong> {hashQuestionBank[selectedQuestion].includeDeletes ? "Mixed insert and delete" : "Insertion"}</span>
               <span><strong className="text-[#29404f]">Iterations:</strong> 10</span>
             </div>
-          </div>
-        ) : (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
+        </div>
+
+        <button
+          onClick={() => setChoice((current) => current === "custom" ? "default" : "custom")}
+          className={`mt-4 flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${choice === "custom" ? "border-[#1865f2]/40 bg-[#1865f2]/[0.04]" : "border-[#d9e1e6] bg-[#ffffff] hover:bg-[#f7f9fa]"}`}
+          aria-expanded={choice === "custom"}
+        >
+          <span>
+            <strong className="block text-sm text-[#29404f]">Customize a question</strong>
+            <span className="mt-0.5 block text-xs text-[#647782]">Table size, values, operations, and session length</span>
+          </span>
+          <Icon name="arrow" className={`h-4 w-4 text-[#607481] transition-transform ${choice === "custom" ? "-rotate-90" : "rotate-90"}`} />
+        </button>
+
+        {choice === "custom" && (
+          <div className="animate-in mt-3 rounded-xl border border-[#d9e1e6] bg-[#ffffff] p-5">
             <div className="mb-6"><h3 className="text-sm font-semibold text-[#29404f]">Question configuration</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Prime table sizes are used to keep every probe sequence valid.</p></div>
             <div className="grid gap-5 sm:grid-cols-2">
               <Setting label="Table size" help="Number of available buckets">
@@ -779,23 +756,7 @@ function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: Traversa
     <div>
       <PageTitle eyebrow="Traversal setup" title={info.title} description="Choose the recommended 10-node exercise or generate a tree from your own values." action={<button onClick={onBack} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="back" /> BST directory</button>} />
       <section className="mx-auto max-w-6xl px-6 py-10 sm:px-10 lg:px-12">
-        <div className="grid gap-4 md:grid-cols-2">
-          <button onClick={() => setChoice("default")} className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "default" ? "border-[#14a36f]/55 bg-[#14a36f]/[0.055]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}>
-            <div className="mb-5 flex justify-between"><span className="grid h-12 w-12 place-items-center rounded-xl bg-[#14a36f]/10 text-[#14a36f]"><Icon name="check" className="h-5 w-5" /></span><span className="h-fit rounded-full bg-[#14a36f] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#ffffff]">Recommended</span></div>
-            <h3 className="text-base font-semibold">Use default questions</h3>
-            <p className="mt-2 text-sm leading-5 text-[#647782]">Traverse a balanced 10-node BST with questions that progress from guided to independent.</p>
-            <div className="mt-5 flex gap-2">{["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[11px] ${index === 0 ? "bg-[#14a36f]/10 text-[#16875f]" : index === 1 ? "bg-[#b7791f]/10 text-[#d6b45f]" : "bg-[#c84b3a]/10 text-[#dd7b6a]"}`}>{label}</span>)}</div>
-          </button>
-          <button onClick={() => setChoice("custom")} className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "custom" ? "border-[#1865f2]/50 bg-[#1865f2]/[0.045]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}>
-            <div className="mb-5 flex justify-between"><span className="grid h-12 w-12 place-items-center rounded-xl bg-[#1865f2]/10 text-[#1865f2]"><Icon name="tree" className="h-5 w-5" /></span><span className="h-fit rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[11px] uppercase text-[#6b7d88]">Flexible</span></div>
-            <h3 className="text-base font-semibold">Customize questions</h3>
-            <p className="mt-2 text-sm leading-5 text-[#647782]">Choose the number of nodes and provide the values used to generate a balanced BST.</p>
-            <div className="mt-5 font-mono text-xs text-[#6d929f]">CUSTOM TREE · CUSTOM VALUES</div>
-          </button>
-        </div>
-
-        {choice === "default" ? (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
+        <div className="animate-in rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
             <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div><h3 className="text-base font-semibold text-[#29404f]">Recommended question bank</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Select one complete tree · 10 traversal iterations per question</p></div>
               <code className="rounded-lg bg-[#f7f9fa] px-3 py-2 text-xs" style={{ color: info.accent }}>{info.rule}</code>
@@ -806,7 +767,7 @@ function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: Traversa
                 return (
                   <button
                     key={question.id}
-                    onClick={() => setSelectedQuestion(index)}
+                    onClick={() => { setSelectedQuestion(index); setChoice("default"); }}
                     className={`min-h-[150px] rounded-xl border p-4 text-left transition ${
                       selected ? "border-[#1865f2] bg-[#1865f2]/[0.055] shadow-[0_0_0_3px_rgba(24,101,242,0.08)]" : "border-[#d9e1e6] bg-[#f7f9fa] hover:border-[#1865f2]/40 hover:bg-[#ffffff]"
                     }`}
@@ -828,9 +789,22 @@ function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: Traversa
               <span><strong className="text-[#29404f]">Nodes:</strong> 10</span>
               <span><strong className="text-[#29404f]">Iterations:</strong> 10</span>
             </div>
-          </div>
-        ) : (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
+        </div>
+
+        <button
+          onClick={() => setChoice((current) => current === "custom" ? "default" : "custom")}
+          className={`mt-4 flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition ${choice === "custom" ? "border-[#1865f2]/40 bg-[#1865f2]/[0.04]" : "border-[#d9e1e6] bg-[#ffffff] hover:bg-[#f7f9fa]"}`}
+          aria-expanded={choice === "custom"}
+        >
+          <span>
+            <strong className="block text-sm text-[#29404f]">Customize a question</strong>
+            <span className="mt-0.5 block text-xs text-[#647782]">Node values, tree size, and traversal configuration</span>
+          </span>
+          <Icon name="arrow" className={`h-4 w-4 text-[#607481] transition-transform ${choice === "custom" ? "-rotate-90" : "rotate-90"}`} />
+        </button>
+
+        {choice === "custom" && (
+          <div className="animate-in mt-3 rounded-xl border border-[#d9e1e6] bg-[#ffffff] p-5">
             <h3 className="mb-6 text-sm font-semibold text-[#29404f]">Tree configuration</h3>
             <div className="grid gap-5 sm:grid-cols-2">
               <Setting label="Number of nodes" help="One traversal question is generated per node">
