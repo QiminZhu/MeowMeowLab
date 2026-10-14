@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "preorder-001",
+  "type": "binary-search-tree",
+  "technique": "preorder",
+  "title": "Preorder traversal of a balanced tree",
+  "difficulty": "easy",
+  "tree": {
+    "construction": "balanced-from-values",
+    "values": [1, 3, 4, 6, 7, 8, 9, 10, 13, 14]
+  },
+  "iterations": [
+    { "step": 1, "answer": { "visitedValue": 7, "explanation": "Visit the root first." } },
+    { "step": 2, "answer": { "visitedValue": 3, "explanation": "Continue into the left subtree." } },
+    { "step": 3, "answer": { "visitedValue": 1 } },
+    { "step": 4, "answer": { "visitedValue": 4 } },
+    { "step": 5, "answer": { "visitedValue": 6 } },
+    { "step": 6, "answer": { "visitedValue": 10, "explanation": "The left subtree is complete; enter the right subtree." } },
+    { "step": 7, "answer": { "visitedValue": 8 } },
+    { "step": 8, "answer": { "visitedValue": 9 } },
+    { "step": 9, "answer": { "visitedValue": 13 } },
+    { "step": 10, "answer": { "visitedValue": 14 } }
+  ]
+}

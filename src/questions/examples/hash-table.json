@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "id": "linear-001",
+  "type": "hash-table",
+  "technique": "linear-probing",
+  "title": "Linear probing with mixed operations",
+  "difficulty": "easy",
+  "config": {
+    "tableSize": 7,
+    "emptyMarker": "",
+    "deletedMarker": "DEL",
+    "primaryHash": "key-mod-table-size"
+  },
+  "initialTable": ["", "", "", "", "", "", ""],
+  "iterations": [
+    {
+      "operation": "insert",
+      "value": 18,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 4,
+        "tableAfter": ["", "", "", "", "18", "", ""],
+        "explanation": "Bucket 4 is empty."
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 25,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 5,
+        "tableAfter": ["", "", "", "", "18", "25", ""],
+        "explanation": "Bucket 4 is occupied, so linear probing moves to bucket 5."
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 32,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 6,
+        "tableAfter": ["", "", "", "", "18", "25", "32"],
+        "explanation": "Buckets 4 and 5 are occupied, so probing continues to bucket 6."
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 7,
+      "answer": {
+        "primaryHash": 0,
+        "targetBucket": 0,
+        "tableAfter": ["7", "", "", "", "18", "25", "32"]
+      }
+    },
+    {
+      "operation": "delete",
+      "value": 25,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 5,
+        "tableAfter": ["7", "", "", "", "18", "DEL", "32"],
+        "explanation": "The deleted bucket is marked DEL to preserve the probe chain."
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 14,
+      "answer": {
+        "primaryHash": 0,
+        "targetBucket": 1,
+        "tableAfter": ["7", "14", "", "", "18", "DEL", "32"]
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 21,
+      "answer": {
+        "primaryHash": 0,
+        "targetBucket": 2,
+        "tableAfter": ["7", "14", "21", "", "18", "DEL", "32"]
+      }
+    },
+    {
+      "operation": "delete",
+      "value": 18,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 4,
+        "tableAfter": ["7", "14", "21", "", "DEL", "DEL", "32"]
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 39,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 4,
+        "tableAfter": ["7", "14", "21", "", "39", "DEL", "32"]
+      }
+    },
+    {
+      "operation": "insert",
+      "value": 46,
+      "answer": {
+        "primaryHash": 4,
+        "targetBucket": 5,
+        "tableAfter": ["7", "14", "21", "", "39", "46", "32"]
+      }
+    }
+  ]
+}
