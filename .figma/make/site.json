@@ -1,1 +1,10 @@
-{}
+{
+  "description": "Provides clear, concise answers to user questions, helping individuals quickly find information and solutions across various topics.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
