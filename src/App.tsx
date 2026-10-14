@@ -1,12 +1,26 @@
 import { useMemo, useState } from "react";
 
-type View = "directory" | "setup" | "hash" | "bst";
+type View = "directory" | "setup" | "hash" | "bst" | "bstSetup" | "bstPractice";
 type MethodId = "linear" | "chaining" | "quadratic" | "double";
+type TraversalId = "preorder" | "inorder" | "postorder";
 type HashConfig = {
   tableSize: number;
   questionCount: number;
   values: number[];
   includeDeletes: boolean;
+  mode: "default" | "custom";
+};
+
+type TreeNode = {
+  value: number;
+  left: TreeNode | null;
+  right: TreeNode | null;
+};
+
+type TreeSession = {
+  values: number[];
+  root: TreeNode | null;
+  order: number[];
   mode: "default" | "custom";
 };
 type HashStep = {
@@ -52,6 +66,32 @@ const methodInfo: Record<MethodId, { title: string; short: string; formula: stri
     description: "Use a second hash function to determine the probe step size.",
   },
 };
+
+const traversalInfo: Record<TraversalId, { title: string; short: string; rule: string; accent: string; description: string }> = {
+  preorder: {
+    title: "Preorder traversal",
+    short: "Preorder",
+    rule: "ROOT → LEFT → RIGHT",
+    accent: "#70d6ff",
+    description: "Visit each node before traversing its left and right subtrees.",
+  },
+  inorder: {
+    title: "Inorder traversal",
+    short: "Inorder",
+    rule: "LEFT → ROOT → RIGHT",
+    accent: "#b8f34a",
+    description: "Visit the left subtree, the node, and then the right subtree.",
+  },
+  postorder: {
+    title: "Postorder traversal",
+    short: "Postorder",
+    rule: "LEFT → RIGHT → ROOT",
+    accent: "#c7a6ff",
+    description: "Visit both subtrees before visiting their parent node.",
+  },
+};
+
+const defaultTreeValues = [8, 3, 10, 1, 6, 9, 14, 4, 7, 13];
 
 const recommendedValues = [18, 29, 40, 15, 26, 51, 22, 62, 73, 84, 35, 46];
 
@@ -135,6 +175,34 @@ function generateHashLesson(method: MethodId, config: HashConfig): HashStep[] {
   return steps;
 }
 
+function buildBalancedTree(values: number[]): TreeNode | null {
+  const unique = [...new Set(values)].sort((a, b) => a - b);
+  function build(start: number, end: number): TreeNode | null {
+    if (start > end) return null;
+    const middle = Math.floor((start + end) / 2);
+    return {
+      value: unique[middle],
+      left: build(start, middle - 1),
+      right: build(middle + 1, end),
+    };
+  }
+  return build(0, unique.length - 1);
+}
+
+function traversalOrder(root: TreeNode | null, type: TraversalId) {
+  const result: number[] = [];
+  function walk(node: TreeNode | null) {
+    if (!node) return;
+    if (type === "preorder") result.push(node.value);
+    walk(node.left);
+    if (type === "inorder") result.push(node.value);
+    walk(node.right);
+    if (type === "postorder") result.push(node.value);
+  }
+  walk(root);
+  return result;
+}
+
 const bstSteps = [
   { value: 8, slot: 0, before: ["", "", "", "", "", "", ""], after: ["8", "", "", "", "", "", ""], path: "The tree is empty, so 8 becomes the root." },
   { value: 3, slot: 1, before: ["8", "", "", "", "", "", ""], after: ["8", "3", "", "", "", "", ""], path: "3 < 8, so move left." },
@@ -160,6 +228,8 @@ export default function App() {
   const [view, setView] = useState<View>("directory");
   const [method, setMethod] = useState<MethodId>("linear");
   const [session, setSession] = useState<{ config: HashConfig; lesson: HashStep[] } | null>(null);
+  const [traversal, setTraversal] = useState<TraversalId>("preorder");
+  const [treeSession, setTreeSession] = useState<TreeSession | null>(null);
 
   function openMethod(id: MethodId) {
     setMethod(id);
@@ -172,16 +242,38 @@ export default function App() {
     setView("hash");
   }
 
+  function openTraversal(id: TraversalId) {
+    setTraversal(id);
+    setTreeSession(null);
+    setView("bstSetup");
+  }
+
+  function startTreeLab(values: number[], mode: "default" | "custom") {
+    const root = buildBalancedTree(values);
+    setTreeSession({ values, root, order: traversalOrder(root, traversal), mode });
+    setView("bstPractice");
+  }
+
   return (
     <main className="min-h-screen bg-[#090c0b] text-[#e9efec]">
-      <Header view={view} onBack={() => setView(view === "hash" ? "setup" : "directory")} />
+      <Header
+        view={view}
+        onBack={() => {
+          if (view === "hash") setView("setup");
+          else if (view === "bstPractice") setView("bstSetup");
+          else if (view === "bstSetup") setView("bst");
+          else setView("directory");
+        }}
+      />
       <div className="mx-auto flex max-w-[1536px]">
-        <Navigation view={view} method={method} setView={setView} openMethod={openMethod} />
+        <Navigation view={view} method={method} traversal={traversal} setView={setView} openMethod={openMethod} openTraversal={openTraversal} />
         <div className="min-w-0 flex-1">
           {view === "directory" && <HashDirectory openMethod={openMethod} openBst={() => setView("bst")} />}
           {view === "setup" && <QuestionSetup method={method} onStart={startLab} onBack={() => setView("directory")} />}
           {view === "hash" && session && <HashPractice key={`${method}-${session.config.mode}-${session.config.tableSize}`} method={method} lesson={session.lesson} config={session.config} onDirectory={() => setView("directory")} />}
-          {view === "bst" && <BstPractice />}
+          {view === "bst" && <BstDirectory openTraversal={openTraversal} />}
+          {view === "bstSetup" && <TreeQuestionSetup traversal={traversal} onStart={startTreeLab} onBack={() => setView("bst")} />}
+          {view === "bstPractice" && treeSession && <TraversalPractice key={`${traversal}-${treeSession.mode}`} traversal={traversal} session={treeSession} onDirectory={() => setView("bst")} />}
         </div>
       </div>
     </main>
@@ -213,13 +305,13 @@ function Header({ view, onBack }: { view: View; onBack: () => void }) {
   );
 }
 
-function Navigation({ view, method, setView, openMethod }: { view: View; method: MethodId; setView: (view: View) => void; openMethod: (id: MethodId) => void }) {
+function Navigation({ view, method, traversal, setView, openMethod, openTraversal }: { view: View; method: MethodId; traversal: TraversalId; setView: (view: View) => void; openMethod: (id: MethodId) => void; openTraversal: (id: TraversalId) => void }) {
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-64px)] w-[250px] shrink-0 border-r border-white/[0.07] bg-[#0b0f0d] px-4 py-6 lg:block">
       <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#56615b]">Data structures</p>
       <button
         onClick={() => setView("directory")}
-        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium ${view !== "bst" ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}
+        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium ${!view.startsWith("bst") ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}
       >
         <Icon name="grid" className="h-4 w-4 text-[#b8f34a]" /> Hash tables
       </button>
@@ -238,10 +330,23 @@ function Navigation({ view, method, setView, openMethod }: { view: View; method:
       </div>
       <button
         onClick={() => setView("bst")}
-        className={`mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium ${view === "bst" ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}
+        className={`mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium ${view.startsWith("bst") ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}
       >
         <Icon name="tree" className="h-4 w-4 text-[#70d6ff]" /> Binary search tree
       </button>
+      {view.startsWith("bst") && (
+        <div className="my-2 ml-5 border-l border-white/[0.07] pl-4">
+          {(Object.keys(traversalInfo) as TraversalId[]).map((id) => (
+            <button
+              key={id}
+              onClick={() => openTraversal(id)}
+              className={`block w-full rounded-md px-3 py-2 text-left text-[11px] transition ${(view === "bstSetup" || view === "bstPractice") && traversal === id ? "bg-white/[0.05] text-[#dbe2de]" : "text-[#66716b] hover:text-[#aeb8b3]"}`}
+            >
+              {traversalInfo[id].title}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="absolute inset-x-4 bottom-6 rounded-xl border border-white/[0.07] bg-[#101512] p-4">
         <div className="mb-2 flex justify-between text-[11px]"><span className="text-[#89948e]">Course progress</span><b className="text-[#b8f34a]">42%</b></div>
         <div className="h-1.5 rounded-full bg-white/[0.06]"><div className="h-full w-[42%] rounded-full bg-[#b8f34a]" /></div>
@@ -528,6 +633,229 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
       </div>
     </div>
   );
+}
+
+function BstDirectory({ openTraversal }: { openTraversal: (id: TraversalId) => void }) {
+  return (
+    <div>
+      <section className="border-b border-white/[0.07] px-5 py-9 sm:px-8 lg:px-10">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#70d6ff]">Learning directory</span>
+        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#f1f5f3] sm:text-4xl">Binary search trees</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7d8982]">
+          Practice the three fundamental depth-first traversal orders with visual trees and step-by-step answer slots.
+        </p>
+      </section>
+      <section className="px-5 py-8 sm:px-8 lg:px-10">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-[#dce3df]">Traversal problem types</h2>
+          <span className="text-xs text-[#626d67]">3 interactive labs</span>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {(Object.keys(traversalInfo) as TraversalId[]).map((id, index) => {
+            const info = traversalInfo[id];
+            return (
+              <button
+                id={`traversal-${id}`}
+                key={id}
+                onClick={() => openTraversal(id)}
+                className="group rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 text-left transition hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-[#101613] sm:p-6"
+              >
+                <div className="mb-7 flex items-start justify-between">
+                  <span className="grid h-11 w-11 place-items-center rounded-xl font-mono text-xs font-bold" style={{ color: info.accent, backgroundColor: `${info.accent}12` }}>0{index + 1}</span>
+                  <Icon name="tree" className="h-5 w-5 text-[#46514b] transition group-hover:text-[#8b9690]" />
+                </div>
+                <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#e7edea]">{info.title}</h3>
+                <p className="mt-2 min-h-[60px] text-xs leading-5 text-[#707b75]">{info.description}</p>
+                <div className="mt-5 border-t border-white/[0.06] pt-4">
+                  <code className="text-[10px] font-semibold tracking-wider" style={{ color: info.accent }}>{info.rule}</code>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-8 rounded-xl border border-[#70d6ff]/15 bg-[#70d6ff]/[0.035] px-5 py-4 text-xs leading-5 text-[#7f9ba5]">
+          All three labs use the same visual format, making it easy to compare how changing the visit rule changes the final sequence.
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: TraversalId; onStart: (values: number[], mode: "default" | "custom") => void; onBack: () => void }) {
+  const info = traversalInfo[traversal];
+  const [choice, setChoice] = useState<"default" | "custom">("default");
+  const [nodeCount, setNodeCount] = useState(10);
+  const [valueText, setValueText] = useState(defaultTreeValues.join(", "));
+
+  function begin() {
+    if (choice === "default") return onStart(defaultTreeValues, "default");
+    const parsed = [...new Set(valueText.split(",").map((value) => Number(value.trim())).filter((value) => Number.isFinite(value) && value >= 0))];
+    const values = [...parsed];
+    let candidate = 2;
+    while (values.length < nodeCount) {
+      if (!values.includes(candidate)) values.push(candidate);
+      candidate += 3;
+    }
+    onStart(values.slice(0, nodeCount), "custom");
+  }
+
+  return (
+    <div>
+      <PageTitle eyebrow="Traversal setup" title={info.title} description="Choose the recommended 10-node exercise or generate a tree from your own values." action={<button onClick={onBack} className="flex items-center gap-2 text-xs text-[#7b8680] hover:text-white"><Icon name="back" /> BST directory</button>} />
+      <section className="mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-10">
+        <div className="grid gap-4 md:grid-cols-2">
+          <button onClick={() => setChoice("default")} className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "default" ? "border-[#b8f34a]/55 bg-[#b8f34a]/[0.055]" : "border-white/[0.08] bg-[#0d1210] hover:border-white/[0.16]"}`}>
+            <div className="mb-5 flex justify-between"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#b8f34a]/10 text-[#b8f34a]"><Icon name="check" className="h-5 w-5" /></span><span className="h-fit rounded-full bg-[#b8f34a] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-[#111610]">Recommended</span></div>
+            <h3 className="text-base font-semibold">Use default questions</h3>
+            <p className="mt-2 text-xs leading-5 text-[#748079]">Traverse a balanced 10-node BST with questions that progress from guided to independent.</p>
+            <div className="mt-5 flex gap-2">{["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[9px] ${index === 0 ? "bg-[#b8f34a]/10 text-[#a9dc50]" : index === 1 ? "bg-[#eac46c]/10 text-[#d6b45f]" : "bg-[#ff8a76]/10 text-[#dd7b6a]"}`}>{label}</span>)}</div>
+          </button>
+          <button onClick={() => setChoice("custom")} className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "custom" ? "border-[#70d6ff]/50 bg-[#70d6ff]/[0.045]" : "border-white/[0.08] bg-[#0d1210] hover:border-white/[0.16]"}`}>
+            <div className="mb-5 flex justify-between"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#70d6ff]/10 text-[#70d6ff]"><Icon name="tree" className="h-5 w-5" /></span><span className="h-fit rounded-full border border-white/[0.08] px-2.5 py-1 text-[9px] uppercase text-[#6f7a74]">Flexible</span></div>
+            <h3 className="text-base font-semibold">Customize questions</h3>
+            <p className="mt-2 text-xs leading-5 text-[#748079]">Choose the number of nodes and provide the values used to generate a balanced BST.</p>
+            <div className="mt-5 font-mono text-[10px] text-[#6d929f]">CUSTOM TREE · CUSTOM VALUES</div>
+          </button>
+        </div>
+
+        {choice === "default" ? (
+          <div className="animate-in mt-6 rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 sm:p-6">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div><h3 className="text-sm font-semibold text-[#dfe6e2]">Recommended 10-question path</h3><p className="mt-1 text-[11px] text-[#68736d]">Values: {defaultTreeValues.join(", ")}</p></div>
+              <code className="rounded-lg bg-[#090d0b] px-3 py-2 text-[10px]" style={{ color: info.accent }}>{info.rule}</code>
+            </div>
+            <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10">{Array.from({ length: 10 }, (_, index) => <div key={index} className="rounded-lg border border-white/[0.06] bg-[#090d0b] py-3 text-center"><span className="block font-mono text-[9px] text-[#56615b]">Q{index + 1}</span><span className={`mt-1 block text-[8px] uppercase ${index < 3 ? "text-[#9ac944]" : index < 7 ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{index < 3 ? "Easy" : index < 7 ? "Med" : "Hard"}</span></div>)}</div>
+          </div>
+        ) : (
+          <div className="animate-in mt-6 rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 sm:p-6">
+            <h3 className="mb-6 text-sm font-semibold text-[#dfe6e2]">Tree configuration</h3>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Setting label="Number of nodes" help="One traversal question is generated per node">
+                <select value={nodeCount} onChange={(e) => setNodeCount(Number(e.target.value))} className="setting-input">{[5, 7, 10, 12].map((count) => <option key={count}>{count}</option>)}</select>
+              </Setting>
+              <Setting label="Traversal rule" help="Determined by the selected problem type">
+                <div className="flex h-11 items-center rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 font-mono text-[10px]" style={{ color: info.accent }}>{info.rule}</div>
+              </Setting>
+              <div className="sm:col-span-2"><Setting label="Node values" help="Comma-separated unique positive integers; missing values are generated automatically"><input value={valueText} onChange={(e) => setValueText(e.target.value)} className="setting-input font-mono" /></Setting></div>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-end border-t border-white/[0.07] pt-6">
+          <button onClick={begin} className="flex items-center gap-2 rounded-lg bg-[#b8f34a] px-5 py-3 text-xs font-bold text-[#111610]">Generate questions <Icon name="arrow" className="h-3.5 w-3.5" /></button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TraversalPractice({ traversal, session, onDirectory }: { traversal: TraversalId; session: TreeSession; onDirectory: () => void }) {
+  const info = traversalInfo[traversal];
+  const [question, setQuestion] = useState(0);
+  const [answers, setAnswers] = useState<string[]>(Array(session.order.length).fill(""));
+  const [status, setStatus] = useState<"idle" | "wrong" | "correct" | "done">("idle");
+  const [hint, setHint] = useState(false);
+
+  function check() {
+    setStatus(Number(answers[question]) === session.order[question] ? "correct" : "wrong");
+  }
+  function next() {
+    if (question === session.order.length - 1) return setStatus("done");
+    setQuestion((value) => value + 1); setStatus("idle"); setHint(false);
+  }
+  function reset() {
+    setQuestion(0); setAnswers(Array(session.order.length).fill("")); setStatus("idle"); setHint(false);
+  }
+
+  const visitedCount = question + (status === "correct" || status === "done" ? 1 : 0);
+  return (
+    <div>
+      <PageTitle eyebrow="BST traversal lab" title={info.title} description={`Follow ${info.rule.toLowerCase()} and enter each node in visit order.`} action={<button onClick={reset} className="flex items-center gap-2 text-xs text-[#7b8680] hover:text-white"><Icon name="reset" /> Reset</button>} />
+      <div className="grid xl:grid-cols-[minmax(0,1fr)_300px]">
+        <section className="px-5 py-6 sm:px-8 lg:px-10">
+          <StepRail total={session.order.length} current={question} done={status === "done"} labels={session.order.map((_, index) => `NODE ${index + 1}`)} color={info.accent} />
+          {status === "done" ? <Complete title={`${info.title} complete`} onReset={reset} onBack={onDirectory} /> : (
+            <div className="rounded-2xl border border-white/[0.08] bg-[#0d1210]">
+              <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-7">
+                <div><span className="text-[10px] uppercase tracking-wider text-[#637069]">Question {question + 1} of {session.order.length}</span><p className="mt-1 text-sm font-medium">Which node is visited next?</p></div>
+                <code className="rounded-lg px-3 py-2 text-[10px] font-semibold" style={{ color: info.accent, backgroundColor: `${info.accent}10` }}>{info.rule}</code>
+              </div>
+              <div className="px-4 py-6 sm:px-7">
+                <TraversalTree root={session.root} visited={new Set(session.order.slice(0, visitedCount))} accent={info.accent} />
+                <div className="mt-2">
+                  <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-[#59645e]">Traversal answer</p>
+                  <div className="scrollbar flex justify-center gap-2 overflow-x-auto pb-2">
+                    {answers.map((answer, index) => (
+                      <div key={index} className="shrink-0">
+                        <span className="mb-1 block text-center font-mono text-[8px] text-[#4f5a54]">{index + 1}</span>
+                        <input
+                          value={answer}
+                          readOnly={index !== question}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "").slice(0, 3);
+                            setAnswers((items) => items.map((item, i) => i === index ? value : item));
+                            setStatus("idle");
+                          }}
+                          inputMode="numeric"
+                          autoFocus={index === question}
+                          placeholder={index === question ? "?" : "—"}
+                          className={`h-10 w-11 rounded-lg border text-center font-mono text-xs outline-none ${index < question || (index === question && status === "correct") ? "border-[#b8f34a]/30 bg-[#b8f34a]/[0.06] text-[#c9ec89]" : index === question ? "border-white/20 bg-[#090d0b] text-white focus:border-[#70d6ff]" : "border-white/[0.05] bg-[#090d0b] text-[#39443e]"}`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {hint && <Feedback kind="hint">{traversalHint(traversal, question, session.order)}</Feedback>}
+                {status === "wrong" && <Feedback kind="wrong">That node is not next in the {info.short.toLowerCase()} sequence. Follow the rule from the current subtree.</Feedback>}
+                {status === "correct" && <Feedback kind="correct">Correct. Node {session.order[question]} is position {question + 1} in the traversal.</Feedback>}
+              </div>
+              <LabFooter status={status} onHint={() => setHint(true)} onCheck={check} onNext={next} last={question === session.order.length - 1} />
+            </div>
+          )}
+        </section>
+        <aside className="border-t border-white/[0.07] bg-[#0b0f0d] px-6 py-7 xl:border-l xl:border-t-0">
+          <AsideTitle>{info.short} rule</AsideTitle>
+          {info.rule.split(" → ").map((part, index) => <AsideItem key={part} number={`0${index + 1}`} title={`Visit ${part.toLowerCase()}`}>{traversalExplanation(traversal, part)}</AsideItem>)}
+          <div className="mt-8 grid grid-cols-2 gap-2"><Stat label="Nodes" value={String(session.order.length)} /><Stat label="Questions" value={String(session.order.length)} /></div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function TraversalTree({ root, visited, accent }: { root: TreeNode | null; visited: Set<number>; accent: string }) {
+  const nodes: Array<{ value: number; x: number; y: number; parentX?: number; parentY?: number }> = [];
+  function collect(node: TreeNode | null, depth: number, min: number, max: number, parent?: { x: number; y: number }) {
+    if (!node) return;
+    const x = (min + max) / 2;
+    const y = 12 + depth * 25;
+    nodes.push({ value: node.value, x, y, parentX: parent?.x, parentY: parent?.y });
+    collect(node.left, depth + 1, min, x, { x, y });
+    collect(node.right, depth + 1, x, max, { x, y });
+  }
+  collect(root, 0, 3, 97);
+  return (
+    <div className="relative mx-auto h-[330px] max-w-[680px]">
+      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {nodes.filter((node) => node.parentX !== undefined).map((node) => <line key={node.value} x1={node.parentX} y1={(node.parentY ?? 0) + 4} x2={node.x} y2={node.y - 4} stroke="#2b3630" strokeWidth="0.7" />)}
+      </svg>
+      {nodes.map((node) => {
+        const active = visited.has(node.value);
+        return <div key={node.value} className="absolute grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 font-mono text-sm font-semibold transition-all duration-300 sm:h-14 sm:w-14" style={{ left: `${node.x}%`, top: `${node.y}%`, borderColor: active ? accent : "rgba(255,255,255,.13)", backgroundColor: active ? `${accent}16` : "#090d0b", color: active ? accent : "#aeb7b2", boxShadow: active ? `0 0 24px ${accent}12` : "none" }}>{node.value}</div>;
+      })}
+    </div>
+  );
+}
+
+function traversalHint(type: TraversalId, question: number, order: number[]) {
+  if (question === 0) return type === "preorder" ? "Preorder starts at the root." : type === "inorder" ? "Inorder starts at the leftmost node." : "Postorder starts with the deepest available leaf in the left subtree.";
+  return `The previous node was ${order[question - 1]}. Continue using the ${traversalInfo[type].rule.toLowerCase()} rule.`;
+}
+
+function traversalExplanation(type: TraversalId, part: string) {
+  if (part === "ROOT") return type === "preorder" ? "Record the current node before exploring children." : "Record the current node after the required subtree visits.";
+  if (part === "LEFT") return "Recursively apply the same traversal rule to the left subtree.";
+  return "Recursively apply the same traversal rule to the right subtree.";
 }
 
 function BstPractice() {
