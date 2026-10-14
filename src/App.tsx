@@ -93,6 +93,32 @@ const traversalInfo: Record<TraversalId, { title: string; short: string; rule: s
 
 const defaultTreeValues = [8, 3, 10, 1, 6, 9, 14, 4, 7, 13];
 
+const hashQuestionBank = [
+  { id: "direct-placement", title: "Direct placement", difficulty: "Easy", summary: "Start with mostly empty target buckets.", values: [12, 25, 38, 7, 19, 31, 43, 55, 67, 79], includeDeletes: false },
+  { id: "first-collision", title: "First collision", difficulty: "Easy", summary: "Resolve a single early collision.", values: [18, 29, 7, 20, 33, 46, 59, 72, 85, 98], includeDeletes: false },
+  { id: "short-clusters", title: "Short clusters", difficulty: "Easy", summary: "Practice two-value collision groups.", values: [14, 25, 36, 8, 19, 30, 41, 52, 63, 74], includeDeletes: false },
+  { id: "mixed-basics", title: "Mixed basics", difficulty: "Medium", summary: "Combine insertion and deletion.", values: [18, 29, 40, 15, 26, 51, 22, 62, 73, 84], includeDeletes: true },
+  { id: "dense-cluster", title: "Dense cluster", difficulty: "Medium", summary: "Work through a growing collision cluster.", values: [7, 18, 29, 40, 51, 62, 73, 84, 95, 106], includeDeletes: false },
+  { id: "deleted-slots", title: "Deleted slots", difficulty: "Medium", summary: "Reuse slots while preserving searches.", values: [16, 27, 38, 49, 9, 20, 31, 42, 53, 64], includeDeletes: true },
+  { id: "wrap-around", title: "Wrap-around", difficulty: "Medium", summary: "Continue probing past the table boundary.", values: [10, 21, 32, 43, 54, 65, 76, 87, 98, 109], includeDeletes: true },
+  { id: "long-probes", title: "Long probe paths", difficulty: "Hard", summary: "Trace several occupied positions.", values: [9, 20, 31, 42, 53, 64, 75, 86, 97, 108], includeDeletes: true },
+  { id: "tombstone-chain", title: "Tombstone chain", difficulty: "Hard", summary: "Maintain a probe chain across deletions.", values: [13, 24, 35, 46, 57, 68, 79, 90, 101, 112], includeDeletes: true },
+  { id: "full-mixed-trace", title: "Full mixed trace", difficulty: "Hard", summary: "Solve a dense sequence with mixed operations.", values: [17, 28, 39, 50, 61, 72, 83, 94, 105, 116], includeDeletes: true },
+] as const;
+
+const treeQuestionBank = [
+  { id: "balanced-starter", title: "Balanced starter", difficulty: "Easy", summary: "A balanced tree with distinct branches.", values: [1, 3, 4, 6, 7, 8, 9, 10, 13, 14] },
+  { id: "small-steps", title: "Small steps", difficulty: "Easy", summary: "Closely spaced values in a balanced shape.", values: [2, 4, 5, 7, 9, 11, 12, 14, 16, 18] },
+  { id: "wide-values", title: "Wide values", difficulty: "Easy", summary: "A clear tree with widely spaced values.", values: [5, 15, 25, 35, 45, 55, 65, 75, 85, 95] },
+  { id: "left-focus", title: "Left subtree focus", difficulty: "Medium", summary: "Track several nodes through the left subtree.", values: [3, 8, 12, 17, 21, 34, 48, 55, 63, 79] },
+  { id: "right-focus", title: "Right subtree focus", difficulty: "Medium", summary: "Practice transitions into the right subtree.", values: [6, 14, 19, 27, 32, 41, 58, 66, 73, 88] },
+  { id: "alternating-range", title: "Alternating range", difficulty: "Medium", summary: "Values span several numerical ranges.", values: [4, 11, 23, 29, 37, 46, 52, 68, 81, 97] },
+  { id: "close-comparisons", title: "Close comparisons", difficulty: "Medium", summary: "Neighboring values require careful tracking.", values: [20, 22, 24, 27, 30, 33, 35, 38, 41, 44] },
+  { id: "deep reasoning", title: "Deep reasoning", difficulty: "Hard", summary: "A less predictable set of node values.", values: [7, 18, 26, 39, 43, 57, 64, 78, 86, 99] },
+  { id: "subtree-switches", title: "Subtree switches", difficulty: "Hard", summary: "Focus on transitions between completed subtrees.", values: [9, 16, 28, 31, 47, 53, 69, 74, 82, 96] },
+  { id: "full-traversal", title: "Full traversal challenge", difficulty: "Hard", summary: "Complete an independent ten-node traversal.", values: [13, 21, 34, 42, 56, 67, 71, 85, 92, 108] },
+] as const;
+
 const recommendedValues = [18, 29, 40, 15, 26, 51, 22, 62, 73, 84, 35, 46];
 
 function probeIndex(method: MethodId, key: number, attempt: number, size: number) {
@@ -442,6 +468,7 @@ function MethodCard({ id, onClick }: { id: MethodId; onClick: () => void }) {
 function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart: (config: HashConfig) => void; onBack: () => void }) {
   const info = methodInfo[method];
   const [choice, setChoice] = useState<"default" | "custom">("default");
+  const [selectedQuestion, setSelectedQuestion] = useState(0);
   const [tableSize, setTableSize] = useState(11);
   const [questionCount, setQuestionCount] = useState(10);
   const [valueText, setValueText] = useState("18, 29, 40, 15, 26, 51, 22, 62");
@@ -449,7 +476,8 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
 
   function begin() {
     if (choice === "default") {
-      onStart({ tableSize: 11, questionCount: 10, values: recommendedValues, includeDeletes: true, mode: "default" });
+      const question = hashQuestionBank[selectedQuestion];
+      onStart({ tableSize: 11, questionCount: 10, values: [...question.values], includeDeletes: question.includeDeletes, mode: "default" });
       return;
     }
     const parsed = valueText.split(",").map((value) => Number(value.trim())).filter((value) => Number.isFinite(value));
@@ -504,16 +532,36 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
         {choice === "default" ? (
           <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div><h3 className="text-sm font-semibold text-[#29404f]">Recommended question path</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Table size 11 · Primary hash: key mod 11 · Insert and delete</p></div>
-              <span className="text-sm font-semibold text-[#14a36f]">10 questions</span>
+              <div><h3 className="text-base font-semibold text-[#29404f]">Recommended question bank</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Select one complete question · 10 iterations per question · Table size 11</p></div>
+              <span className="text-sm font-semibold text-[#14a36f]">Question {selectedQuestion + 1} selected</span>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-              {Array.from({ length: 10 }, (_, index) => {
-                const difficulty = index < 3 ? "Easy" : index < 7 ? "Medium" : "Hard";
-                const action = index === 5 || index === 8 ? "Delete" : "Insert";
-                const values = [18, 29, 40, 15, 26, 29, 51, 22, 18, 62];
-                return <div key={index} className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] p-3"><div className="mb-2 flex justify-between"><span className="font-mono text-[11px] text-[#71838e]">Q{index + 1}</span><span className={`text-[10px] font-semibold uppercase ${difficulty === "Easy" ? "text-[#16875f]" : difficulty === "Medium" ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{difficulty}</span></div><p className="font-mono text-[13px] text-[#4d6371]">{action} {values[index]}</p></div>;
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {hashQuestionBank.map((question, index) => {
+                const selected = selectedQuestion === index;
+                return (
+                  <button
+                    key={question.id}
+                    onClick={() => setSelectedQuestion(index)}
+                    className={`min-h-[150px] rounded-xl border p-4 text-left transition ${
+                      selected ? "border-[#1865f2] bg-[#1865f2]/[0.055] shadow-[0_0_0_3px_rgba(24,101,242,0.08)]" : "border-[#d9e1e6] bg-[#f7f9fa] hover:border-[#1865f2]/40 hover:bg-[#ffffff]"
+                    }`}
+                    aria-pressed={selected}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="font-mono text-[11px] text-[#71838e]">QUESTION {index + 1}</span>
+                      {selected && <span className="grid h-5 w-5 place-items-center rounded-full bg-[#1865f2] text-[#ffffff]"><Icon name="check" className="h-3 w-3" /></span>}
+                    </div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wide ${question.difficulty === "Easy" ? "text-[#16875f]" : question.difficulty === "Medium" ? "text-[#b7791f]" : "text-[#c84b3a]"}`}>{question.difficulty}</span>
+                    <h4 className="mt-1.5 text-sm font-bold text-[#1f3342]">{question.title}</h4>
+                    <p className="mt-2 text-xs leading-5 text-[#647782]">{question.summary}</p>
+                  </button>
+                );
               })}
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl bg-[#f3f6f8] px-4 py-3 text-xs text-[#607481]">
+              <span><strong className="text-[#29404f]">Technique:</strong> {info.title}</span>
+              <span><strong className="text-[#29404f]">Operations:</strong> {hashQuestionBank[selectedQuestion].includeDeletes ? "Mixed insert and delete" : "Insertion"}</span>
+              <span><strong className="text-[#29404f]">Iterations:</strong> 10</span>
             </div>
           </div>
         ) : (
@@ -711,11 +759,12 @@ function BstDirectory({ openTraversal }: { openTraversal: (id: TraversalId) => v
 function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: TraversalId; onStart: (values: number[], mode: "default" | "custom") => void; onBack: () => void }) {
   const info = traversalInfo[traversal];
   const [choice, setChoice] = useState<"default" | "custom">("default");
+  const [selectedQuestion, setSelectedQuestion] = useState(0);
   const [nodeCount, setNodeCount] = useState(10);
   const [valueText, setValueText] = useState(defaultTreeValues.join(", "));
 
   function begin() {
-    if (choice === "default") return onStart(defaultTreeValues, "default");
+    if (choice === "default") return onStart([...treeQuestionBank[selectedQuestion].values], "default");
     const parsed = [...new Set(valueText.split(",").map((value) => Number(value.trim())).filter((value) => Number.isFinite(value) && value >= 0))];
     const values = [...parsed];
     let candidate = 2;
@@ -747,11 +796,38 @@ function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: Traversa
 
         {choice === "default" ? (
           <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div><h3 className="text-sm font-semibold text-[#29404f]">Recommended 10-question path</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Values: {defaultTreeValues.join(", ")}</p></div>
+            <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div><h3 className="text-base font-semibold text-[#29404f]">Recommended question bank</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Select one complete tree · 10 traversal iterations per question</p></div>
               <code className="rounded-lg bg-[#f7f9fa] px-3 py-2 text-xs" style={{ color: info.accent }}>{info.rule}</code>
             </div>
-            <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10">{Array.from({ length: 10 }, (_, index) => <div key={index} className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] py-3 text-center"><span className="block font-mono text-[11px] text-[#71838e]">Q{index + 1}</span><span className={`mt-1 block text-[10px] uppercase ${index < 3 ? "text-[#16875f]" : index < 7 ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{index < 3 ? "Easy" : index < 7 ? "Med" : "Hard"}</span></div>)}</div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {treeQuestionBank.map((question, index) => {
+                const selected = selectedQuestion === index;
+                return (
+                  <button
+                    key={question.id}
+                    onClick={() => setSelectedQuestion(index)}
+                    className={`min-h-[150px] rounded-xl border p-4 text-left transition ${
+                      selected ? "border-[#1865f2] bg-[#1865f2]/[0.055] shadow-[0_0_0_3px_rgba(24,101,242,0.08)]" : "border-[#d9e1e6] bg-[#f7f9fa] hover:border-[#1865f2]/40 hover:bg-[#ffffff]"
+                    }`}
+                    aria-pressed={selected}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="font-mono text-[11px] text-[#71838e]">QUESTION {index + 1}</span>
+                      {selected && <span className="grid h-5 w-5 place-items-center rounded-full bg-[#1865f2] text-[#ffffff]"><Icon name="check" className="h-3 w-3" /></span>}
+                    </div>
+                    <span className={`text-[10px] font-bold uppercase tracking-wide ${question.difficulty === "Easy" ? "text-[#16875f]" : question.difficulty === "Medium" ? "text-[#b7791f]" : "text-[#c84b3a]"}`}>{question.difficulty}</span>
+                    <h4 className="mt-1.5 text-sm font-bold text-[#1f3342]">{question.title}</h4>
+                    <p className="mt-2 text-xs leading-5 text-[#647782]">{question.summary}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl bg-[#f3f6f8] px-4 py-3 text-xs text-[#607481]">
+              <span><strong className="text-[#29404f]">Traversal:</strong> {info.title}</span>
+              <span><strong className="text-[#29404f]">Nodes:</strong> 10</span>
+              <span><strong className="text-[#29404f]">Iterations:</strong> 10</span>
+            </div>
           </div>
         ) : (
           <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
