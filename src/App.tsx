@@ -119,6 +119,48 @@ const treeQuestionBank = [
   { id: "full-traversal", title: "Full traversal challenge", difficulty: "Hard", summary: "Complete an independent ten-node traversal.", values: [13, 21, 34, 42, 56, 67, 71, 85, 92, 108] },
 ] as const;
 
+function playCompletionChime() {
+  const AudioContext = window.AudioContext;
+  if (!AudioContext) return;
+
+  const context = new AudioContext();
+  const master = context.createGain();
+  const start = context.currentTime;
+  const notes = [
+    { frequency: 523.25, delay: 0 },
+    { frequency: 659.25, delay: 0.09 },
+    { frequency: 783.99, delay: 0.18 },
+    { frequency: 1046.5, delay: 0.31 },
+  ];
+
+  master.gain.setValueAtTime(0.0001, start);
+  master.gain.exponentialRampToValueAtTime(0.08, start + 0.025);
+  master.gain.exponentialRampToValueAtTime(0.0001, start + 0.85);
+  master.connect(context.destination);
+
+  notes.forEach(({ frequency, delay }, index) => {
+    const oscillator = context.createOscillator();
+    const noteGain = context.createGain();
+    const noteStart = start + delay;
+    const noteEnd = noteStart + (index === notes.length - 1 ? 0.5 : 0.28);
+
+    oscillator.type = index === notes.length - 1 ? "sine" : "triangle";
+    oscillator.frequency.setValueAtTime(frequency, noteStart);
+    noteGain.gain.setValueAtTime(0.0001, noteStart);
+    noteGain.gain.exponentialRampToValueAtTime(index === notes.length - 1 ? 0.7 : 0.45, noteStart + 0.018);
+    noteGain.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+
+    oscillator.connect(noteGain);
+    noteGain.connect(master);
+    oscillator.start(noteStart);
+    oscillator.stop(noteEnd);
+  });
+
+  window.setTimeout(() => {
+    void context.close();
+  }, 1100);
+}
+
 const recommendedValues = [18, 29, 40, 15, 26, 51, 22, 62, 73, 84, 35, 46];
 
 function probeIndex(method: MethodId, key: number, attempt: number, size: number) {
@@ -623,7 +665,11 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
   }
 
   function next() {
-    if (step === lesson.length - 1) return setStatus("done");
+    if (step === lesson.length - 1) {
+      playCompletionChime();
+      setStatus("done");
+      return;
+    }
     const nextIndex = step + 1;
     setStep(nextIndex);
     setDraft(lesson[nextIndex].before);
@@ -837,7 +883,11 @@ function TraversalPractice({ traversal, session, onDirectory }: { traversal: Tra
     setStatus(Number(answers[question]) === session.order[question] ? "correct" : "wrong");
   }
   function next() {
-    if (question === session.order.length - 1) return setStatus("done");
+    if (question === session.order.length - 1) {
+      playCompletionChime();
+      setStatus("done");
+      return;
+    }
     setQuestion((value) => value + 1); setStatus("idle"); setHint(false);
   }
   function reset() {
