@@ -119,12 +119,36 @@ const treeQuestionBank = [
   { id: "full-traversal", title: "Full traversal challenge", difficulty: "Hard", summary: "Complete an independent ten-node traversal.", values: [13, 21, 34, 42, 56, 67, 71, 85, 92, 108] },
 ] as const;
 
-function playCompletionChime() {
-  const audio = new Audio("/sounds/question-complete.mp3");
-  audio.volume = 0.55;
+type FeedbackSound = "question-correct" | "end-of-task";
+
+const feedbackSounds: Record<FeedbackSound, string> = {
+  "question-correct": "/sounds/feedback/question-correct.ogg",
+  "end-of-task": "/sounds/feedback/end-of-task.ogg",
+};
+
+function playFeedbackSound(sound: FeedbackSound) {
+  const audio = new Audio(feedbackSounds[sound]);
+  audio.volume = sound === "question-correct" ? 0.45 : 0.6;
   void audio.play().catch(() => {
-    // Browsers may block audio when playback is not initiated by a user action.
+    // The uploaded asset may not exist yet, or playback may be browser-blocked.
   });
+}
+
+function TaskCompletionCelebration({ visible }: { visible: boolean }) {
+  if (!visible) return null;
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden" aria-hidden="true">
+      <img
+        src="/gifs/task-complete/task-complete.gif"
+        alt=""
+        className="task-complete-gif"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
+      />
+    </div>
+  );
 }
 
 const recommendedValues = [18, 29, 40, 15, 26, 51, 22, 62, 73, 84, 35, 46];
@@ -617,6 +641,7 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
   const [hash, setHash] = useState("");
   const [status, setStatus] = useState<"idle" | "wrong" | "correct" | "done">("idle");
   const [hint, setHint] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const current = lesson[step];
   const changed = useMemo(() => draft.findIndex((value, index) => value !== current.before[index]), [draft, current]);
 
@@ -627,12 +652,15 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
 
   function check() {
     const valid = hash.trim() !== "" && Number(hash) === current.hash && draft.every((value, index) => value === current.after[index]);
+    if (valid) playFeedbackSound("question-correct");
     setStatus(valid ? "correct" : "wrong");
   }
 
   function next() {
     if (step === lesson.length - 1) {
-      playCompletionChime();
+      playFeedbackSound("end-of-task");
+      setShowCelebration(true);
+      window.setTimeout(() => setShowCelebration(false), 2500);
       setStatus("done");
       return;
     }
@@ -650,6 +678,7 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
 
   return (
     <div>
+      <TaskCompletionCelebration visible={showCelebration} />
       <PageTitle eyebrow="Hash table lab" title={info.title} description={info.description} action={<button onClick={reset} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
       <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_300px]">
         <section className="px-6 py-8 sm:px-10 lg:px-12">
@@ -844,13 +873,18 @@ function TraversalPractice({ traversal, session, onDirectory }: { traversal: Tra
   const [answers, setAnswers] = useState<string[]>(Array(session.order.length).fill(""));
   const [status, setStatus] = useState<"idle" | "wrong" | "correct" | "done">("idle");
   const [hint, setHint] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   function check() {
-    setStatus(Number(answers[question]) === session.order[question] ? "correct" : "wrong");
+    const valid = Number(answers[question]) === session.order[question];
+    if (valid) playFeedbackSound("question-correct");
+    setStatus(valid ? "correct" : "wrong");
   }
   function next() {
     if (question === session.order.length - 1) {
-      playCompletionChime();
+      playFeedbackSound("end-of-task");
+      setShowCelebration(true);
+      window.setTimeout(() => setShowCelebration(false), 2500);
       setStatus("done");
       return;
     }
@@ -863,6 +897,7 @@ function TraversalPractice({ traversal, session, onDirectory }: { traversal: Tra
   const visitedCount = question + (status === "correct" || status === "done" ? 1 : 0);
   return (
     <div>
+      <TaskCompletionCelebration visible={showCelebration} />
       <PageTitle eyebrow="BST traversal lab" title={info.title} description={`Follow ${info.rule.toLowerCase()} and enter each node in visit order.`} action={<button onClick={reset} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
       <div className="grid xl:grid-cols-[minmax(0,1fr)_300px]">
         <section className="px-6 py-8 sm:px-10 lg:px-12">

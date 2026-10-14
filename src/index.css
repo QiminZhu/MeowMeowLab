@@ -88,6 +88,17 @@ textarea:focus-visible {
   animation: fade-slide 240ms ease-out both;
 }
 
+.task-complete-gif {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(22rem, 62vw);
+  max-height: 55vh;
+  object-fit: contain;
+  animation: task-complete-slide 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  filter: drop-shadow(0 1rem 2.5rem rgb(23 50 77 / 0.18));
+}
+
 @keyframes fade-slide {
   from {
     opacity: 0;
@@ -96,5 +107,24 @@ textarea:focus-visible {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes task-complete-slide {
+  0% {
+    opacity: 0;
+    transform: translate(-125vw, -50%) scale(0.88);
+  }
+  18% {
+    opacity: 1;
+  }
+  48%,
+  72% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
   }
 }
