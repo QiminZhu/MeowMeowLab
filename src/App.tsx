@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type View = "directory" | "setup" | "hash" | "bst" | "bstSetup" | "bstPractice";
 type MethodId = "linear" | "chaining" | "quadratic" | "double";
@@ -306,36 +306,68 @@ function Header({ view, onBack }: { view: View; onBack: () => void }) {
 }
 
 function Navigation({ view, method, traversal, setView, openMethod, openTraversal }: { view: View; method: MethodId; traversal: TraversalId; setView: (view: View) => void; openMethod: (id: MethodId) => void; openTraversal: (id: TraversalId) => void }) {
+  const hashIsActive = !view.startsWith("bst");
+  const treeIsActive = view.startsWith("bst");
+  const [hashExpanded, setHashExpanded] = useState(hashIsActive);
+  const [treeExpanded, setTreeExpanded] = useState(treeIsActive);
+
+  useEffect(() => {
+    if (hashIsActive) setHashExpanded(true);
+    if (treeIsActive) setTreeExpanded(true);
+  }, [hashIsActive, treeIsActive]);
+
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-64px)] w-[250px] shrink-0 border-r border-white/[0.07] bg-[#0b0f0d] px-4 py-6 lg:block">
       <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#56615b]">Data structures</p>
-      <button
-        onClick={() => setView("directory")}
-        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium ${!view.startsWith("bst") ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}
-      >
-        <Icon name="grid" className="h-4 w-4 text-[#b8f34a]" /> Hash tables
-      </button>
-      <div className="my-2 ml-5 border-l border-white/[0.07] pl-4">
-        {(Object.keys(methodInfo) as MethodId[]).map((id) => (
-          <button
-            key={id}
-            onClick={() => openMethod(id)}
-            className={`block w-full rounded-md px-3 py-2 text-left text-[11px] transition ${
-              (view === "hash" || view === "setup") && method === id ? "bg-white/[0.05] text-[#dbe2de]" : "text-[#66716b] hover:text-[#aeb8b3]"
-            }`}
-          >
-            {methodInfo[id].title}
+      <div>
+        <div className={`flex items-center rounded-lg transition ${hashIsActive ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}>
+          <button onClick={() => { setView("directory"); setHashExpanded(true); }} className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left text-xs font-medium">
+            <Icon name="grid" className="h-4 w-4 text-[#b8f34a]" />
+            Hash tables
           </button>
-        ))}
+          <button
+            onClick={() => setHashExpanded((expanded) => !expanded)}
+            className="mr-1 grid h-8 w-8 place-items-center rounded-md text-[#68736d] transition hover:bg-white/[0.05] hover:text-white"
+            aria-label={`${hashExpanded ? "Collapse" : "Expand"} hash table directory`}
+            aria-expanded={hashExpanded}
+          >
+            <Icon name="arrow" className={`h-3.5 w-3.5 transition-transform ${hashExpanded ? "rotate-90" : ""}`} />
+          </button>
+        </div>
+        {hashExpanded && (
+          <div className="animate-in my-2 ml-5 border-l border-white/[0.07] pl-4">
+            {(Object.keys(methodInfo) as MethodId[]).map((id) => (
+              <button
+                key={id}
+                onClick={() => openMethod(id)}
+                className={`block w-full rounded-md px-3 py-2 text-left text-[11px] transition ${
+                  (view === "hash" || view === "setup") && method === id ? "bg-white/[0.05] text-[#dbe2de]" : "text-[#66716b] hover:text-[#aeb8b3]"
+                }`}
+              >
+                {methodInfo[id].title}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-      <button
-        onClick={() => setView("bst")}
-        className={`mt-2 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium ${view.startsWith("bst") ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}
-      >
-        <Icon name="tree" className="h-4 w-4 text-[#70d6ff]" /> Binary search tree
-      </button>
-      {view.startsWith("bst") && (
-        <div className="my-2 ml-5 border-l border-white/[0.07] pl-4">
+
+      <div className="mt-2">
+        <div className={`flex items-center rounded-lg transition ${treeIsActive ? "bg-[#151b18] text-white" : "text-[#7d8882] hover:bg-white/[0.03]"}`}>
+          <button onClick={() => { setView("bst"); setTreeExpanded(true); }} className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left text-xs font-medium">
+            <Icon name="tree" className="h-4 w-4 text-[#70d6ff]" />
+            Binary search tree
+          </button>
+          <button
+            onClick={() => setTreeExpanded((expanded) => !expanded)}
+            className="mr-1 grid h-8 w-8 place-items-center rounded-md text-[#68736d] transition hover:bg-white/[0.05] hover:text-white"
+            aria-label={`${treeExpanded ? "Collapse" : "Expand"} binary search tree directory`}
+            aria-expanded={treeExpanded}
+          >
+            <Icon name="arrow" className={`h-3.5 w-3.5 transition-transform ${treeExpanded ? "rotate-90" : ""}`} />
+          </button>
+        </div>
+        {treeExpanded && (
+          <div className="animate-in my-2 ml-5 border-l border-white/[0.07] pl-4">
           {(Object.keys(traversalInfo) as TraversalId[]).map((id) => (
             <button
               key={id}
@@ -345,11 +377,8 @@ function Navigation({ view, method, traversal, setView, openMethod, openTraversa
               {traversalInfo[id].title}
             </button>
           ))}
-        </div>
-      )}
-      <div className="absolute inset-x-4 bottom-6 rounded-xl border border-white/[0.07] bg-[#101512] p-4">
-        <div className="mb-2 flex justify-between text-[11px]"><span className="text-[#89948e]">Course progress</span><b className="text-[#b8f34a]">42%</b></div>
-        <div className="h-1.5 rounded-full bg-white/[0.06]"><div className="h-full w-[42%] rounded-full bg-[#b8f34a]" /></div>
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -371,8 +400,8 @@ function HashDirectory({ openMethod, openBst }: { openMethod: (id: MethodId) => 
           <span className="text-xs text-[#626d67]">4 interactive labs</span>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          {(Object.keys(methodInfo) as MethodId[]).map((id, index) => (
-            <MethodCard key={id} id={id} index={index} onClick={() => openMethod(id)} />
+          {(Object.keys(methodInfo) as MethodId[]).map((id) => (
+            <MethodCard key={id} id={id} onClick={() => openMethod(id)} />
           ))}
         </div>
         <div className="mt-10 mb-5">
@@ -393,16 +422,15 @@ function HashDirectory({ openMethod, openBst }: { openMethod: (id: MethodId) => 
   );
 }
 
-function MethodCard({ id, index, onClick }: { id: MethodId; index: number; onClick: () => void }) {
+function MethodCard({ id, onClick }: { id: MethodId; onClick: () => void }) {
   const info = methodInfo[id];
   return (
     <button onClick={onClick} className="group rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 text-left transition hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-[#101613] sm:p-6">
-      <div className="mb-6 flex items-start justify-between">
-        <span className="grid h-10 w-10 place-items-center rounded-xl font-mono text-xs font-semibold" style={{ color: info.accent, backgroundColor: `${info.accent}12` }}>0{index + 1}</span>
+      <div className="mb-3 flex items-start justify-between gap-4">
+        <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#e7edea]">{info.title}</h3>
         <span className="rounded-full border border-white/[0.07] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-[#68736d]">Interactive</span>
       </div>
-      <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#e7edea]">{info.title}</h3>
-      <p className="mt-2 min-h-10 text-xs leading-5 text-[#707b75]">{info.description}</p>
+      <p className="min-h-10 text-xs leading-5 text-[#7a857f]">{info.description}</p>
       <div className="mt-5 flex items-center justify-between border-t border-white/[0.06] pt-4">
         <code className="text-[10px]" style={{ color: info.accent }}>{info.formula}</code>
         <span className="flex items-center gap-1 text-[10px] font-medium text-[#87928c] transition group-hover:text-white">Start lab <Icon name="arrow" className="h-3 w-3" /></span>
@@ -651,7 +679,7 @@ function BstDirectory({ openTraversal }: { openTraversal: (id: TraversalId) => v
           <span className="text-xs text-[#626d67]">3 interactive labs</span>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
-          {(Object.keys(traversalInfo) as TraversalId[]).map((id, index) => {
+          {(Object.keys(traversalInfo) as TraversalId[]).map((id) => {
             const info = traversalInfo[id];
             return (
               <button
@@ -660,12 +688,11 @@ function BstDirectory({ openTraversal }: { openTraversal: (id: TraversalId) => v
                 onClick={() => openTraversal(id)}
                 className="group rounded-2xl border border-white/[0.08] bg-[#0d1210] p-5 text-left transition hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-[#101613] sm:p-6"
               >
-                <div className="mb-7 flex items-start justify-between">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl font-mono text-xs font-bold" style={{ color: info.accent, backgroundColor: `${info.accent}12` }}>0{index + 1}</span>
+                <div className="mb-3 flex items-start justify-between gap-4">
+                  <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#e7edea]">{info.title}</h3>
                   <Icon name="tree" className="h-5 w-5 text-[#46514b] transition group-hover:text-[#8b9690]" />
                 </div>
-                <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#e7edea]">{info.title}</h3>
-                <p className="mt-2 min-h-[60px] text-xs leading-5 text-[#707b75]">{info.description}</p>
+                <p className="min-h-[60px] text-xs leading-5 text-[#7a857f]">{info.description}</p>
                 <div className="mt-5 border-t border-white/[0.06] pt-4">
                   <code className="text-[10px] font-semibold tracking-wider" style={{ color: info.accent }}>{info.rule}</code>
                 </div>
