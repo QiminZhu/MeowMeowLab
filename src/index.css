@@ -31,14 +31,14 @@ button {
 }
 
 .setting-input {
-  height: 2.75rem;
+  height: 3rem;
   width: 100%;
   border: 1px solid #d9e1e6;
   border-radius: 0.5rem;
   background: #ffffff;
-  padding: 0 0.75rem;
+  padding: 0 0.875rem;
   color: #29404f;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   outline: none;
 }
 

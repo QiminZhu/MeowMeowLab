@@ -291,15 +291,15 @@ function Header({ view, onBack }: { view: View; onBack: () => void }) {
           <span className="text-[17px] font-semibold tracking-[-0.04em]">algo<span className="text-[#14a36f]">lab</span></span>
         </button>
         {view !== "directory" && (
-          <button onClick={onBack} className="hidden items-center gap-2 border-l border-[#d9e1e6] pl-6 text-xs text-[#607481] transition hover:text-[#17324d] sm:flex">
+          <button onClick={onBack} className="hidden items-center gap-2 border-l border-[#d9e1e6] pl-6 text-sm text-[#607481] transition hover:text-[#17324d] sm:flex">
             <Icon name="back" />
             All lessons
           </button>
         )}
       </div>
       <div className="flex items-center gap-3">
-        <span className="hidden text-xs text-[#6b7d88] sm:block">12 day streak</span>
-        <button className="grid h-9 w-9 place-items-center rounded-full bg-[#e6edf2] text-xs font-semibold ring-1 ring-[#d9e1e6]">JS</button>
+        <span className="hidden text-sm text-[#6b7d88] sm:block">12 day streak</span>
+        <button className="grid h-9 w-9 place-items-center rounded-full bg-[#e6edf2] text-sm font-semibold ring-1 ring-[#d9e1e6]">JS</button>
       </div>
     </header>
   );
@@ -317,11 +317,11 @@ function Navigation({ view, method, traversal, setView, openMethod, openTraversa
   }, [hashIsActive, treeIsActive]);
 
   return (
-    <aside className="sticky top-16 hidden h-[calc(100vh-64px)] w-[250px] shrink-0 border-r border-[#d9e1e6] bg-[#ffffff] px-4 py-6 lg:block">
-      <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#71838e]">Data structures</p>
+    <aside className="sticky top-16 hidden h-[calc(100vh-64px)] w-[280px] shrink-0 border-r border-[#d9e1e6] bg-[#ffffff] px-4 py-6 lg:block">
+      <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#71838e]">Data structures</p>
       <div>
         <div className={`flex items-center rounded-lg transition ${hashIsActive ? "bg-[#e9f1fb] text-[#17324d]" : "text-[#607481] hover:bg-[#f1f5f7]"}`}>
-          <button onClick={() => { setView("directory"); setHashExpanded(true); }} className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left text-xs font-medium">
+          <button onClick={() => { setView("directory"); setHashExpanded(true); }} className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left text-sm font-medium">
             <Icon name="grid" className="h-4 w-4 text-[#14a36f]" />
             Hash tables
           </button>
@@ -340,7 +340,7 @@ function Navigation({ view, method, traversal, setView, openMethod, openTraversa
               <button
                 key={id}
                 onClick={() => openMethod(id)}
-                className={`block w-full rounded-md px-3 py-2 text-left text-[11px] transition ${
+                className={`block w-full rounded-md px-3 py-2 text-left text-[13px] transition ${
                   (view === "hash" || view === "setup") && method === id ? "bg-[#f1f5f7] text-[#29404f]" : "text-[#6b7d88] hover:text-[#536977]"
                 }`}
               >
@@ -353,7 +353,7 @@ function Navigation({ view, method, traversal, setView, openMethod, openTraversa
 
       <div className="mt-2">
         <div className={`flex items-center rounded-lg transition ${treeIsActive ? "bg-[#e9f1fb] text-[#17324d]" : "text-[#607481] hover:bg-[#f1f5f7]"}`}>
-          <button onClick={() => { setView("bst"); setTreeExpanded(true); }} className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left text-xs font-medium">
+          <button onClick={() => { setView("bst"); setTreeExpanded(true); }} className="flex flex-1 items-center gap-3 px-3 py-2.5 text-left text-sm font-medium">
             <Icon name="tree" className="h-4 w-4 text-[#1865f2]" />
             Binary search tree
           </button>
@@ -372,7 +372,7 @@ function Navigation({ view, method, traversal, setView, openMethod, openTraversa
             <button
               key={id}
               onClick={() => openTraversal(id)}
-              className={`block w-full rounded-md px-3 py-2 text-left text-[11px] transition ${(view === "bstSetup" || view === "bstPractice") && traversal === id ? "bg-[#f1f5f7] text-[#29404f]" : "text-[#6b7d88] hover:text-[#536977]"}`}
+              className={`block w-full rounded-md px-3 py-2 text-left text-[13px] transition ${(view === "bstSetup" || view === "bstPractice") && traversal === id ? "bg-[#f1f5f7] text-[#29404f]" : "text-[#6b7d88] hover:text-[#536977]"}`}
             >
               {traversalInfo[id].title}
             </button>
@@ -387,17 +387,17 @@ function Navigation({ view, method, traversal, setView, openMethod, openTraversa
 function HashDirectory({ openMethod, openBst }: { openMethod: (id: MethodId) => void; openBst: () => void }) {
   return (
     <div>
-      <section className="border-b border-[#d9e1e6] px-5 py-9 sm:px-8 lg:px-10">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#14a36f]">Learning directory</span>
+      <section className="border-b border-[#d9e1e6] px-6 py-10 sm:px-10 lg:px-12">
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#14a36f]">Learning directory</span>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#17324d] sm:text-4xl">Hash tables</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607481]">
           Learn how hash tables resolve collisions. Each lab uses the same values and table size, so you can compare the strategies directly.
         </p>
       </section>
-      <section className="px-5 py-8 sm:px-8 lg:px-10">
+      <section className="px-6 py-10 sm:px-10 lg:px-12">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-[#29404f]">Collision resolution methods</h2>
-          <span className="text-xs text-[#6b7d88]">4 interactive labs</span>
+          <span className="text-sm text-[#6b7d88]">4 interactive labs</span>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {(Object.keys(methodInfo) as MethodId[]).map((id) => (
@@ -405,14 +405,14 @@ function HashDirectory({ openMethod, openBst }: { openMethod: (id: MethodId) => 
           ))}
         </div>
         <div className="mt-10 mb-5">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#71838e]">Continue learning</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#71838e]">Continue learning</span>
         </div>
         <button onClick={openBst} className="group flex w-full items-center justify-between rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-5 text-left transition hover:border-[#1865f2]/30 hover:bg-[#f7fafb] sm:p-6">
           <div className="flex items-center gap-5">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#1865f2]/10 text-[#1865f2]"><Icon name="tree" className="h-6 w-6" /></span>
             <div>
               <h3 className="text-sm font-semibold text-[#243746]">Binary search trees</h3>
-              <p className="mt-1 text-xs text-[#647782]">Build a tree by comparing values and filling the correct node slots.</p>
+              <p className="mt-1 text-sm text-[#647782]">Build a tree by comparing values and filling the correct node slots.</p>
             </div>
           </div>
           <Icon name="arrow" className="h-5 w-5 text-[#71838e] transition group-hover:translate-x-1 group-hover:text-[#1865f2]" />
@@ -428,12 +428,12 @@ function MethodCard({ id, onClick }: { id: MethodId; onClick: () => void }) {
     <button onClick={onClick} className="group rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-5 text-left transition hover:-translate-y-0.5 hover:border-[#d9e1e6] hover:bg-[#f7fafb] sm:p-6">
       <div className="mb-3 flex items-start justify-between gap-4">
         <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#1f3342]">{info.title}</h3>
-        <span className="rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-[#6b7d88]">Interactive</span>
+        <span className="rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#6b7d88]">Interactive</span>
       </div>
-      <p className="min-h-10 text-xs leading-5 text-[#607481]">{info.description}</p>
+      <p className="min-h-10 text-sm leading-5 text-[#607481]">{info.description}</p>
       <div className="mt-5 flex items-center justify-between border-t border-[#d9e1e6] pt-4">
-        <code className="text-[10px]" style={{ color: info.accent }}>{info.formula}</code>
-        <span className="flex items-center gap-1 text-[10px] font-medium text-[#607481] transition group-hover:text-[#17324d]">Start lab <Icon name="arrow" className="h-3 w-3" /></span>
+        <code className="text-xs" style={{ color: info.accent }}>{info.formula}</code>
+        <span className="flex items-center gap-1 text-xs font-medium text-[#607481] transition group-hover:text-[#17324d]">Start lab <Icon name="arrow" className="h-3 w-3" /></span>
       </div>
     </button>
   );
@@ -464,11 +464,11 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
 
   return (
     <div>
-      <PageTitle eyebrow="Practice setup" title={info.title} description="Choose a ready-made learning path or control the question configuration yourself." action={<button onClick={onBack} className="flex items-center gap-2 text-xs text-[#607481] hover:text-[#17324d]"><Icon name="back" /> Directory</button>} />
-      <section className="mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-10">
+      <PageTitle eyebrow="Practice setup" title={info.title} description="Choose a ready-made learning path or control the question configuration yourself." action={<button onClick={onBack} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="back" /> Directory</button>} />
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:px-10 lg:px-12">
         <div className="mb-7">
           <h2 className="text-lg font-semibold tracking-[-0.02em] text-[#1f3342]">How would you like to practice?</h2>
-          <p className="mt-1.5 text-xs text-[#647782]">You can change this choice whenever you restart the lab.</p>
+          <p className="mt-1.5 text-sm text-[#647782]">You can change this choice whenever you restart the lab.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -477,13 +477,13 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
             className={`relative rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "default" ? "border-[#14a36f]/55 bg-[#14a36f]/[0.055]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}
           >
             <div className="mb-5 flex items-start justify-between">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#14a36f]/10 text-[#14a36f]"><Icon name="check" className="h-5 w-5" /></span>
-              <span className="rounded-full bg-[#14a36f] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-[#ffffff]">Recommended</span>
+              <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#14a36f]/10 text-[#14a36f]"><Icon name="check" className="h-5 w-5" /></span>
+              <span className="rounded-full bg-[#14a36f] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#ffffff]">Recommended</span>
             </div>
             <h3 className="text-base font-semibold text-[#1f3342]">Use default questions</h3>
-            <p className="mt-2 text-xs leading-5 text-[#647782]">A curated set of 10 questions that gradually introduces collisions, probing, and deletion.</p>
+            <p className="mt-2 text-sm leading-5 text-[#647782]">A curated set of 10 questions that gradually introduces collisions, probing, and deletion.</p>
             <div className="mt-5 flex items-center gap-2">
-              {["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[9px] font-medium ${index === 0 ? "bg-[#14a36f]/10 text-[#16875f]" : index === 1 ? "bg-[#b7791f]/10 text-[#d6b45f]" : "bg-[#c84b3a]/10 text-[#dd7b6a]"}`}>{label}</span>)}
+              {["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[11px] font-medium ${index === 0 ? "bg-[#14a36f]/10 text-[#16875f]" : index === 1 ? "bg-[#b7791f]/10 text-[#d6b45f]" : "bg-[#c84b3a]/10 text-[#dd7b6a]"}`}>{label}</span>)}
             </div>
           </button>
 
@@ -492,33 +492,33 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
             className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "custom" ? "border-[#1865f2]/50 bg-[#1865f2]/[0.045]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}
           >
             <div className="mb-5 flex items-start justify-between">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#1865f2]/10 font-mono text-lg text-[#1865f2]">≡</span>
-              <span className="rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wider text-[#6b7d88]">Flexible</span>
+              <span className="grid h-12 w-12 place-items-center rounded-xl bg-[#1865f2]/10 font-mono text-lg text-[#1865f2]">≡</span>
+              <span className="rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#6b7d88]">Flexible</span>
             </div>
             <h3 className="text-base font-semibold text-[#1f3342]">Customize questions</h3>
-            <p className="mt-2 text-xs leading-5 text-[#647782]">Set the table size, number of questions, source values, and whether deletion is included.</p>
-            <div className="mt-5 font-mono text-[10px] text-[#6d929f]">YOUR VALUES · YOUR CONFIG</div>
+            <p className="mt-2 text-sm leading-5 text-[#647782]">Set the table size, number of questions, source values, and whether deletion is included.</p>
+            <div className="mt-5 font-mono text-xs text-[#6d929f]">YOUR VALUES · YOUR CONFIG</div>
           </button>
         </div>
 
         {choice === "default" ? (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-5 sm:p-6">
+          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div><h3 className="text-sm font-semibold text-[#29404f]">Recommended question path</h3><p className="mt-1 text-[11px] text-[#6b7d88]">Table size 11 · Primary hash: key mod 11 · Insert and delete</p></div>
-              <span className="text-xs font-semibold text-[#14a36f]">10 questions</span>
+              <div><h3 className="text-sm font-semibold text-[#29404f]">Recommended question path</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Table size 11 · Primary hash: key mod 11 · Insert and delete</p></div>
+              <span className="text-sm font-semibold text-[#14a36f]">10 questions</span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
               {Array.from({ length: 10 }, (_, index) => {
                 const difficulty = index < 3 ? "Easy" : index < 7 ? "Medium" : "Hard";
                 const action = index === 5 || index === 8 ? "Delete" : "Insert";
                 const values = [18, 29, 40, 15, 26, 29, 51, 22, 18, 62];
-                return <div key={index} className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] p-3"><div className="mb-2 flex justify-between"><span className="font-mono text-[9px] text-[#71838e]">Q{index + 1}</span><span className={`text-[8px] font-semibold uppercase ${difficulty === "Easy" ? "text-[#16875f]" : difficulty === "Medium" ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{difficulty}</span></div><p className="font-mono text-[11px] text-[#4d6371]">{action} {values[index]}</p></div>;
+                return <div key={index} className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] p-3"><div className="mb-2 flex justify-between"><span className="font-mono text-[11px] text-[#71838e]">Q{index + 1}</span><span className={`text-[10px] font-semibold uppercase ${difficulty === "Easy" ? "text-[#16875f]" : difficulty === "Medium" ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{difficulty}</span></div><p className="font-mono text-[13px] text-[#4d6371]">{action} {values[index]}</p></div>;
               })}
             </div>
           </div>
         ) : (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-5 sm:p-6">
-            <div className="mb-6"><h3 className="text-sm font-semibold text-[#29404f]">Question configuration</h3><p className="mt-1 text-[11px] text-[#6b7d88]">Prime table sizes are used to keep every probe sequence valid.</p></div>
+          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
+            <div className="mb-6"><h3 className="text-sm font-semibold text-[#29404f]">Question configuration</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Prime table sizes are used to keep every probe sequence valid.</p></div>
             <div className="grid gap-5 sm:grid-cols-2">
               <Setting label="Table size" help="Number of available buckets">
                 <select
@@ -544,7 +544,7 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
                 </Setting>
               </div>
               <Setting label="Operations" help="Choose which operations can appear">
-                <label className="flex h-11 items-center justify-between rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] px-3 text-xs text-[#536977]">
+                <label className="flex h-11 items-center justify-between rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] px-3 text-sm text-[#536977]">
                   Include deletion
                   <input
                     type="checkbox"
@@ -558,15 +558,15 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
                 </label>
               </Setting>
               <Setting label="Collision strategy" help="Determined by the selected problem type">
-                <div className="flex h-11 items-center rounded-lg border border-[#d9e1e6] bg-[#f1f5f7] px-3 text-xs text-[#607481]">{info.title}</div>
+                <div className="flex h-11 items-center rounded-lg border border-[#d9e1e6] bg-[#f1f5f7] px-3 text-sm text-[#607481]">{info.title}</div>
               </Setting>
             </div>
           </div>
         )}
 
         <div className="mt-6 flex items-center justify-between border-t border-[#d9e1e6] pt-6">
-          <p className="hidden text-[11px] text-[#6b7d88] sm:block">{choice === "default" ? "Best for first-time practice" : "The lab is generated from your settings"}</p>
-          <button onClick={begin} className="ml-auto flex items-center gap-2 rounded-lg bg-[#14a36f] px-5 py-3 text-xs font-bold text-[#ffffff] transition hover:bg-[#11875d]">Generate questions <Icon name="arrow" className="h-3.5 w-3.5" /></button>
+          <p className="hidden text-[13px] text-[#6b7d88] sm:block">{choice === "default" ? "Best for first-time practice" : "The lab is generated from your settings"}</p>
+          <button onClick={begin} className="ml-auto flex items-center gap-2 rounded-lg bg-[#14a36f] px-5 py-3 text-sm font-bold text-[#ffffff] transition hover:bg-[#11875d]">Generate questions <Icon name="arrow" className="h-3.5 w-3.5" /></button>
         </div>
       </section>
     </div>
@@ -574,7 +574,7 @@ function QuestionSetup({ method, onStart, onBack }: { method: MethodId; onStart:
 }
 
 function Setting({ label, help, children }: { label: string; help: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-1 block text-xs font-medium text-[#405767]">{label}</span><span className="mb-2 block text-[10px] text-[#6b7d88]">{help}</span>{children}</label>;
+  return <label className="block"><span className="mb-1 block text-sm font-medium text-[#405767]">{label}</span><span className="mb-2 block text-xs text-[#6b7d88]">{help}</span>{children}</label>;
 }
 
 function HashPractice({ method, lesson, config, onDirectory }: { method: MethodId; lesson: HashStep[]; config: HashConfig; onDirectory: () => void }) {
@@ -613,9 +613,9 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
 
   return (
     <div>
-      <PageTitle eyebrow="Hash table lab" title={info.title} description={info.description} action={<button onClick={reset} className="flex items-center gap-2 text-xs text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
+      <PageTitle eyebrow="Hash table lab" title={info.title} description={info.description} action={<button onClick={reset} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
       <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_300px]">
-        <section className="px-5 py-6 sm:px-8 lg:px-10">
+        <section className="px-6 py-8 sm:px-10 lg:px-12">
           <StepRail total={lesson.length} current={step} done={status === "done"} labels={lesson.map((item) => `${item.action} ${item.value}`)} color={info.accent} />
           {status === "done" ? (
             <Complete title={`${info.title} complete`} onReset={reset} onBack={onDirectory} />
@@ -623,10 +623,10 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
             <div className="rounded-2xl border border-[#d9e1e6] bg-[#ffffff]">
               <div className="flex flex-col justify-between gap-4 border-b border-[#d9e1e6] px-5 py-5 sm:flex-row sm:items-center sm:px-7">
                 <div className="flex items-center gap-4">
-                  <span className="rounded-md px-2.5 py-1.5 font-mono text-[10px] font-bold" style={{ color: info.accent, backgroundColor: `${info.accent}12` }}>{current.action}</span>
-                  <div><span className="text-[10px] text-[#6b7d88]">CURRENT VALUE</span><p className="font-mono text-xl">{current.value}</p></div>
+                  <span className="rounded-md px-2.5 py-1.5 font-mono text-xs font-bold" style={{ color: info.accent, backgroundColor: `${info.accent}12` }}>{current.action}</span>
+                  <div><span className="text-xs text-[#6b7d88]">CURRENT VALUE</span><p className="font-mono text-xl">{current.value}</p></div>
                 </div>
-                <code className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] px-4 py-2.5 text-[10px] text-[#5f7280]">{info.formula}</code>
+                <code className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] px-4 py-2.5 text-xs text-[#5f7280]">{info.formula}</code>
               </div>
               <div className="px-5 py-7 sm:px-7">
                 <TaskNumber number="1" title="Calculate the primary hash">
@@ -636,13 +636,13 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
                   </div>
                 </TaskNumber>
                 <TaskNumber number="2" title={method === "chaining" ? "Update the correct chain" : "Update the correct bucket"}>
-                  <p className="mb-4 text-xs text-[#6b7d88]">{method === "chaining" ? "Use → between values in a chain." : current.action === "DELETE" ? "Use DEL to mark the deleted bucket." : "Resolve any collision using this lab's probe formula."}</p>
+                  <p className="mb-4 text-sm text-[#6b7d88]">{method === "chaining" ? "Use → between values in a chain." : current.action === "DELETE" ? "Use DEL to mark the deleted bucket." : "Resolve any collision using this lab's probe formula."}</p>
                   <div className="grid grid-cols-4 gap-2 sm:grid-cols-7 sm:gap-3">
                     {draft.map((value, index) => (
                       <label key={index}>
-                        <span className="mb-2 block text-center font-mono text-[10px] text-[#71838e]">[{index}]</span>
+                        <span className="mb-2 block text-center font-mono text-xs text-[#71838e]">[{index}]</span>
                         <div className={`relative flex h-[76px] items-center rounded-xl border bg-[#f7f9fa] transition ${changed === index ? "border-[#14a36f]/50" : "border-[#d9e1e6] focus-within:border-[#d9e1e6]"}`}>
-                          <input value={value} onChange={(e) => update(index, e.target.value.toUpperCase())} placeholder="—" className={`w-full bg-transparent px-1 text-center font-mono text-xs outline-none placeholder:text-[#a5b0b7] ${value === DEL ? "text-[#d96b3f]" : "text-[#29404f]"}`} />
+                          <input value={value} onChange={(e) => update(index, e.target.value.toUpperCase())} placeholder="—" className={`w-full bg-transparent px-1 text-center font-mono text-sm outline-none placeholder:text-[#a5b0b7] ${value === DEL ? "text-[#d96b3f]" : "text-[#29404f]"}`} />
                           {changed === index && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#14a36f]" />}
                         </div>
                       </label>
@@ -666,17 +666,17 @@ function HashPractice({ method, lesson, config, onDirectory }: { method: MethodI
 function BstDirectory({ openTraversal }: { openTraversal: (id: TraversalId) => void }) {
   return (
     <div>
-      <section className="border-b border-[#d9e1e6] px-5 py-9 sm:px-8 lg:px-10">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1865f2]">Learning directory</span>
+      <section className="border-b border-[#d9e1e6] px-6 py-10 sm:px-10 lg:px-12">
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1865f2]">Learning directory</span>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#17324d] sm:text-4xl">Binary search trees</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-[#607481]">
           Practice the three fundamental depth-first traversal orders with visual trees and step-by-step answer slots.
         </p>
       </section>
-      <section className="px-5 py-8 sm:px-8 lg:px-10">
+      <section className="px-6 py-10 sm:px-10 lg:px-12">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-[#29404f]">Traversal problem types</h2>
-          <span className="text-xs text-[#6b7d88]">3 interactive labs</span>
+          <span className="text-sm text-[#6b7d88]">3 interactive labs</span>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {(Object.keys(traversalInfo) as TraversalId[]).map((id) => {
@@ -692,15 +692,15 @@ function BstDirectory({ openTraversal }: { openTraversal: (id: TraversalId) => v
                   <h3 className="text-lg font-semibold tracking-[-0.02em] text-[#1f3342]">{info.title}</h3>
                   <Icon name="tree" className="h-5 w-5 text-[#82919a] transition group-hover:text-[#607481]" />
                 </div>
-                <p className="min-h-[60px] text-xs leading-5 text-[#607481]">{info.description}</p>
+                <p className="min-h-[60px] text-sm leading-5 text-[#607481]">{info.description}</p>
                 <div className="mt-5 border-t border-[#d9e1e6] pt-4">
-                  <code className="text-[10px] font-semibold tracking-wider" style={{ color: info.accent }}>{info.rule}</code>
+                  <code className="text-xs font-semibold tracking-wider" style={{ color: info.accent }}>{info.rule}</code>
                 </div>
               </button>
             );
           })}
         </div>
-        <div className="mt-8 rounded-xl border border-[#1865f2]/15 bg-[#1865f2]/[0.035] px-5 py-4 text-xs leading-5 text-[#7f9ba5]">
+        <div className="mt-8 rounded-xl border border-[#1865f2]/15 bg-[#1865f2]/[0.035] px-5 py-4 text-sm leading-5 text-[#7f9ba5]">
           All three labs use the same visual format, making it easy to compare how changing the visit rule changes the final sequence.
         </div>
       </section>
@@ -728,40 +728,40 @@ function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: Traversa
 
   return (
     <div>
-      <PageTitle eyebrow="Traversal setup" title={info.title} description="Choose the recommended 10-node exercise or generate a tree from your own values." action={<button onClick={onBack} className="flex items-center gap-2 text-xs text-[#607481] hover:text-[#17324d]"><Icon name="back" /> BST directory</button>} />
-      <section className="mx-auto max-w-5xl px-5 py-8 sm:px-8 lg:px-10">
+      <PageTitle eyebrow="Traversal setup" title={info.title} description="Choose the recommended 10-node exercise or generate a tree from your own values." action={<button onClick={onBack} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="back" /> BST directory</button>} />
+      <section className="mx-auto max-w-6xl px-6 py-10 sm:px-10 lg:px-12">
         <div className="grid gap-4 md:grid-cols-2">
           <button onClick={() => setChoice("default")} className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "default" ? "border-[#14a36f]/55 bg-[#14a36f]/[0.055]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}>
-            <div className="mb-5 flex justify-between"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#14a36f]/10 text-[#14a36f]"><Icon name="check" className="h-5 w-5" /></span><span className="h-fit rounded-full bg-[#14a36f] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-[#ffffff]">Recommended</span></div>
+            <div className="mb-5 flex justify-between"><span className="grid h-12 w-12 place-items-center rounded-xl bg-[#14a36f]/10 text-[#14a36f]"><Icon name="check" className="h-5 w-5" /></span><span className="h-fit rounded-full bg-[#14a36f] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-[#ffffff]">Recommended</span></div>
             <h3 className="text-base font-semibold">Use default questions</h3>
-            <p className="mt-2 text-xs leading-5 text-[#647782]">Traverse a balanced 10-node BST with questions that progress from guided to independent.</p>
-            <div className="mt-5 flex gap-2">{["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[9px] ${index === 0 ? "bg-[#14a36f]/10 text-[#16875f]" : index === 1 ? "bg-[#b7791f]/10 text-[#d6b45f]" : "bg-[#c84b3a]/10 text-[#dd7b6a]"}`}>{label}</span>)}</div>
+            <p className="mt-2 text-sm leading-5 text-[#647782]">Traverse a balanced 10-node BST with questions that progress from guided to independent.</p>
+            <div className="mt-5 flex gap-2">{["3 Easy", "4 Medium", "3 Hard"].map((label, index) => <span key={label} className={`rounded-md px-2 py-1 text-[11px] ${index === 0 ? "bg-[#14a36f]/10 text-[#16875f]" : index === 1 ? "bg-[#b7791f]/10 text-[#d6b45f]" : "bg-[#c84b3a]/10 text-[#dd7b6a]"}`}>{label}</span>)}</div>
           </button>
           <button onClick={() => setChoice("custom")} className={`rounded-2xl border p-5 text-left transition sm:p-6 ${choice === "custom" ? "border-[#1865f2]/50 bg-[#1865f2]/[0.045]" : "border-[#d9e1e6] bg-[#ffffff] hover:border-[#d9e1e6]"}`}>
-            <div className="mb-5 flex justify-between"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#1865f2]/10 text-[#1865f2]"><Icon name="tree" className="h-5 w-5" /></span><span className="h-fit rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[9px] uppercase text-[#6b7d88]">Flexible</span></div>
+            <div className="mb-5 flex justify-between"><span className="grid h-12 w-12 place-items-center rounded-xl bg-[#1865f2]/10 text-[#1865f2]"><Icon name="tree" className="h-5 w-5" /></span><span className="h-fit rounded-full border border-[#d9e1e6] px-2.5 py-1 text-[11px] uppercase text-[#6b7d88]">Flexible</span></div>
             <h3 className="text-base font-semibold">Customize questions</h3>
-            <p className="mt-2 text-xs leading-5 text-[#647782]">Choose the number of nodes and provide the values used to generate a balanced BST.</p>
-            <div className="mt-5 font-mono text-[10px] text-[#6d929f]">CUSTOM TREE · CUSTOM VALUES</div>
+            <p className="mt-2 text-sm leading-5 text-[#647782]">Choose the number of nodes and provide the values used to generate a balanced BST.</p>
+            <div className="mt-5 font-mono text-xs text-[#6d929f]">CUSTOM TREE · CUSTOM VALUES</div>
           </button>
         </div>
 
         {choice === "default" ? (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-5 sm:p-6">
+          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div><h3 className="text-sm font-semibold text-[#29404f]">Recommended 10-question path</h3><p className="mt-1 text-[11px] text-[#6b7d88]">Values: {defaultTreeValues.join(", ")}</p></div>
-              <code className="rounded-lg bg-[#f7f9fa] px-3 py-2 text-[10px]" style={{ color: info.accent }}>{info.rule}</code>
+              <div><h3 className="text-sm font-semibold text-[#29404f]">Recommended 10-question path</h3><p className="mt-1 text-[13px] text-[#6b7d88]">Values: {defaultTreeValues.join(", ")}</p></div>
+              <code className="rounded-lg bg-[#f7f9fa] px-3 py-2 text-xs" style={{ color: info.accent }}>{info.rule}</code>
             </div>
-            <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10">{Array.from({ length: 10 }, (_, index) => <div key={index} className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] py-3 text-center"><span className="block font-mono text-[9px] text-[#71838e]">Q{index + 1}</span><span className={`mt-1 block text-[8px] uppercase ${index < 3 ? "text-[#16875f]" : index < 7 ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{index < 3 ? "Easy" : index < 7 ? "Med" : "Hard"}</span></div>)}</div>
+            <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10">{Array.from({ length: 10 }, (_, index) => <div key={index} className="rounded-lg border border-[#d9e1e6] bg-[#f7f9fa] py-3 text-center"><span className="block font-mono text-[11px] text-[#71838e]">Q{index + 1}</span><span className={`mt-1 block text-[10px] uppercase ${index < 3 ? "text-[#16875f]" : index < 7 ? "text-[#d1ae58]" : "text-[#d87666]"}`}>{index < 3 ? "Easy" : index < 7 ? "Med" : "Hard"}</span></div>)}</div>
           </div>
         ) : (
-          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-5 sm:p-6">
+          <div className="animate-in mt-6 rounded-2xl border border-[#d9e1e6] bg-[#ffffff] p-6 sm:p-8">
             <h3 className="mb-6 text-sm font-semibold text-[#29404f]">Tree configuration</h3>
             <div className="grid gap-5 sm:grid-cols-2">
               <Setting label="Number of nodes" help="One traversal question is generated per node">
                 <select value={nodeCount} onChange={(e) => setNodeCount(Number(e.target.value))} className="setting-input">{[5, 7, 10, 12].map((count) => <option key={count}>{count}</option>)}</select>
               </Setting>
               <Setting label="Traversal rule" help="Determined by the selected problem type">
-                <div className="flex h-11 items-center rounded-lg border border-[#d9e1e6] bg-[#f1f5f7] px-3 font-mono text-[10px]" style={{ color: info.accent }}>{info.rule}</div>
+                <div className="flex h-11 items-center rounded-lg border border-[#d9e1e6] bg-[#f1f5f7] px-3 font-mono text-xs" style={{ color: info.accent }}>{info.rule}</div>
               </Setting>
               <div className="sm:col-span-2"><Setting label="Node values" help="Comma-separated unique positive integers; missing values are generated automatically"><input value={valueText} onChange={(e) => setValueText(e.target.value)} className="setting-input font-mono" /></Setting></div>
             </div>
@@ -769,7 +769,7 @@ function TreeQuestionSetup({ traversal, onStart, onBack }: { traversal: Traversa
         )}
 
         <div className="mt-6 flex justify-end border-t border-[#d9e1e6] pt-6">
-          <button onClick={begin} className="flex items-center gap-2 rounded-lg bg-[#14a36f] px-5 py-3 text-xs font-bold text-[#ffffff]">Generate questions <Icon name="arrow" className="h-3.5 w-3.5" /></button>
+          <button onClick={begin} className="flex items-center gap-2 rounded-lg bg-[#14a36f] px-5 py-3 text-sm font-bold text-[#ffffff]">Generate questions <Icon name="arrow" className="h-3.5 w-3.5" /></button>
         </div>
       </section>
     </div>
@@ -797,24 +797,24 @@ function TraversalPractice({ traversal, session, onDirectory }: { traversal: Tra
   const visitedCount = question + (status === "correct" || status === "done" ? 1 : 0);
   return (
     <div>
-      <PageTitle eyebrow="BST traversal lab" title={info.title} description={`Follow ${info.rule.toLowerCase()} and enter each node in visit order.`} action={<button onClick={reset} className="flex items-center gap-2 text-xs text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
+      <PageTitle eyebrow="BST traversal lab" title={info.title} description={`Follow ${info.rule.toLowerCase()} and enter each node in visit order.`} action={<button onClick={reset} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
       <div className="grid xl:grid-cols-[minmax(0,1fr)_300px]">
-        <section className="px-5 py-6 sm:px-8 lg:px-10">
+        <section className="px-6 py-8 sm:px-10 lg:px-12">
           <StepRail total={session.order.length} current={question} done={status === "done"} labels={session.order.map((_, index) => `NODE ${index + 1}`)} color={info.accent} />
           {status === "done" ? <Complete title={`${info.title} complete`} onReset={reset} onBack={onDirectory} /> : (
             <div className="rounded-2xl border border-[#d9e1e6] bg-[#ffffff]">
               <div className="flex items-center justify-between border-b border-[#d9e1e6] px-5 py-4 sm:px-7">
-                <div><span className="text-[10px] uppercase tracking-wider text-[#6b7d88]">Question {question + 1} of {session.order.length}</span><p className="mt-1 text-sm font-medium">Which node is visited next?</p></div>
-                <code className="rounded-lg px-3 py-2 text-[10px] font-semibold" style={{ color: info.accent, backgroundColor: `${info.accent}10` }}>{info.rule}</code>
+                <div><span className="text-xs uppercase tracking-wider text-[#6b7d88]">Question {question + 1} of {session.order.length}</span><p className="mt-1 text-sm font-medium">Which node is visited next?</p></div>
+                <code className="rounded-lg px-3 py-2 text-xs font-semibold" style={{ color: info.accent, backgroundColor: `${info.accent}10` }}>{info.rule}</code>
               </div>
               <div className="px-4 py-6 sm:px-7">
                 <TraversalTree root={session.root} visited={new Set(session.order.slice(0, visitedCount))} accent={info.accent} />
                 <div className="mt-2">
-                  <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-[#71838e]">Traversal answer</p>
+                  <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.14em] text-[#71838e]">Traversal answer</p>
                   <div className="scrollbar flex justify-center gap-2 overflow-x-auto pb-2">
                     {answers.map((answer, index) => (
                       <div key={index} className="shrink-0">
-                        <span className="mb-1 block text-center font-mono text-[8px] text-[#82919a]">{index + 1}</span>
+                        <span className="mb-1 block text-center font-mono text-[10px] text-[#82919a]">{index + 1}</span>
                         <input
                           value={answer}
                           readOnly={index !== question}
@@ -826,7 +826,7 @@ function TraversalPractice({ traversal, session, onDirectory }: { traversal: Tra
                           inputMode="numeric"
                           autoFocus={index === question}
                           placeholder={index === question ? "?" : "—"}
-                          className={`h-10 w-11 rounded-lg border text-center font-mono text-xs outline-none ${index < question || (index === question && status === "correct") ? "border-[#14a36f]/30 bg-[#14a36f]/[0.06] text-[#147d5a]" : index === question ? "border-[#d9e1e6] bg-[#f7f9fa] text-[#17324d] focus:border-[#1865f2]" : "border-[#d9e1e6] bg-[#f7f9fa] text-[#82919a]"}`}
+                          className={`h-10 w-11 rounded-lg border text-center font-mono text-sm outline-none ${index < question || (index === question && status === "correct") ? "border-[#14a36f]/30 bg-[#14a36f]/[0.06] text-[#147d5a]" : index === question ? "border-[#d9e1e6] bg-[#f7f9fa] text-[#17324d] focus:border-[#1865f2]" : "border-[#d9e1e6] bg-[#f7f9fa] text-[#82919a]"}`}
                         />
                       </div>
                     ))}
@@ -910,20 +910,20 @@ function BstPractice() {
 
   return (
     <div>
-      <PageTitle eyebrow="Tree lab" title="Build a binary search tree" description="Compare each value with the existing nodes, then fill the correct empty slot." action={<button onClick={reset} className="flex items-center gap-2 text-xs text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
+      <PageTitle eyebrow="Tree lab" title="Build a binary search tree" description="Compare each value with the existing nodes, then fill the correct empty slot." action={<button onClick={reset} className="flex items-center gap-2 text-sm text-[#607481] hover:text-[#17324d]"><Icon name="reset" /> Reset</button>} />
       <div className="grid xl:grid-cols-[minmax(0,1fr)_300px]">
-        <section className="px-5 py-6 sm:px-8 lg:px-10">
+        <section className="px-6 py-8 sm:px-10 lg:px-12">
           <StepRail total={bstSteps.length} current={step} done={status === "done"} labels={bstSteps.map((item) => `INSERT ${item.value}`)} color="#1865f2" />
           {status === "done" ? (
             <Complete title="Binary search tree complete" onReset={reset} />
           ) : (
             <div className="rounded-2xl border border-[#d9e1e6] bg-[#ffffff]">
               <div className="flex items-center justify-between border-b border-[#d9e1e6] px-5 py-5 sm:px-7">
-                <div><span className="text-[10px] uppercase tracking-wider text-[#6b7d88]">Value to insert</span><p className="mt-1 font-mono text-2xl text-[#1865f2]">{current.value}</p></div>
-                <div className="rounded-lg bg-[#1865f2]/[0.07] px-3 py-2 text-[10px] text-[#88b8ca]">LEFT &lt; NODE &lt; RIGHT</div>
+                <div><span className="text-xs uppercase tracking-wider text-[#6b7d88]">Value to insert</span><p className="mt-1 font-mono text-2xl text-[#1865f2]">{current.value}</p></div>
+                <div className="rounded-lg bg-[#1865f2]/[0.07] px-3 py-2 text-xs text-[#88b8ca]">LEFT &lt; NODE &lt; RIGHT</div>
               </div>
               <div className="px-4 py-6 sm:px-7">
-                <p className="mb-2 text-center text-xs text-[#6b7d88]">Select an empty node and enter <span className="font-mono text-[#29404f]">{current.value}</span></p>
+                <p className="mb-2 text-center text-sm text-[#6b7d88]">Select an empty node and enter <span className="font-mono text-[#29404f]">{current.value}</span></p>
                 <TreeCanvas nodes={nodes} changedSlot={current.slot} onChange={updateNode} />
                 {hint && <Feedback kind="hint">{current.path}</Feedback>}
                 {status === "wrong" && <Feedback kind="wrong">That placement breaks the BST ordering rule. Compare from the root again.</Feedback>}
@@ -962,7 +962,7 @@ function TreeCanvas({ nodes, changedSlot, onChange }: { nodes: string[]; changed
         const canEdit = !nodes[index] || index === changedSlot;
         return (
           <div key={index} className="absolute -translate-x-1/2" style={{ left, top }}>
-            <span className="mb-1.5 block text-center font-mono text-[9px] text-[#82919a]">{nodeLabel(index)}</span>
+            <span className="mb-1.5 block text-center font-mono text-[11px] text-[#82919a]">{nodeLabel(index)}</span>
             <input
               value={nodes[index]}
               onChange={(e) => onChange(index, e.target.value)}
@@ -987,8 +987,8 @@ function nodeLabel(index: number) {
 
 function PageTitle({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: React.ReactNode }) {
   return (
-    <section className="flex items-end justify-between gap-4 border-b border-[#d9e1e6] px-5 py-7 sm:px-8 lg:px-10">
-      <div><span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6b7d88]">{eyebrow}</span><h1 className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-[#17324d]">{title}</h1><p className="mt-2 max-w-xl text-xs leading-5 text-[#647782]">{description}</p></div>
+    <section className="flex items-end justify-between gap-4 border-b border-[#d9e1e6] px-6 py-8 sm:px-10 lg:px-12">
+      <div><span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#6b7d88]">{eyebrow}</span><h1 className="mt-2 text-2xl font-semibold tracking-[-0.035em] text-[#17324d]">{title}</h1><p className="mt-2 max-w-xl text-sm leading-5 text-[#647782]">{description}</p></div>
       {action}
     </section>
   );
@@ -999,23 +999,23 @@ function StepRail({ total, current, done, labels, color }: { total: number; curr
     <div className="scrollbar mb-5 flex gap-2 overflow-x-auto pb-1">
       {Array.from({ length: total }, (_, index) => {
         const complete = index < current || done;
-        return <div key={index} className={`flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-[10px] ${index === current && !done ? "border-[#d9e1e6] bg-[#f1f5f7] text-[#29404f]" : "border-[#d9e1e6] text-[#71838e]"}`}><span className="grid h-5 w-5 place-items-center rounded-full text-[9px] font-bold" style={complete ? { backgroundColor: color, color: "#ffffff" } : { backgroundColor: "#edf2f5" }}>{complete ? <Icon name="check" className="h-3 w-3" /> : index + 1}</span><span className="font-mono">{labels[index]}</span></div>;
+        return <div key={index} className={`flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs ${index === current && !done ? "border-[#d9e1e6] bg-[#f1f5f7] text-[#29404f]" : "border-[#d9e1e6] text-[#71838e]"}`}><span className="grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold" style={complete ? { backgroundColor: color, color: "#ffffff" } : { backgroundColor: "#edf2f5" }}>{complete ? <Icon name="check" className="h-3 w-3" /> : index + 1}</span><span className="font-mono">{labels[index]}</span></div>;
       })}
     </div>
   );
 }
 
 function TaskNumber({ number, title, children }: { number: string; title: string; children: React.ReactNode }) {
-  return <div className="mb-8"><div className="mb-3 flex items-center gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e9eef2] text-[10px] font-bold text-[#14a36f]">{number}</span><h2 className="text-sm font-medium text-[#29404f]">{title}</h2></div><div className="sm:ml-9">{children}</div></div>;
+  return <div className="mb-8"><div className="mb-3 flex items-center gap-3"><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e9eef2] text-xs font-bold text-[#14a36f]">{number}</span><h2 className="text-sm font-medium text-[#29404f]">{title}</h2></div><div className="sm:ml-9">{children}</div></div>;
 }
 
 function LabFooter({ status, onHint, onCheck, onNext, last }: { status: string; onHint: () => void; onCheck: () => void; onNext: () => void; last: boolean }) {
-  return <div className="flex items-center justify-between border-t border-[#d9e1e6] px-5 py-4 sm:px-7"><button onClick={onHint} className="text-xs text-[#647782] hover:text-[#9b6b16]">Need a hint?</button>{status === "correct" ? <button onClick={onNext} className="rounded-lg bg-[#14a36f] px-5 py-2.5 text-xs font-bold text-[#ffffff]">{last ? "Finish lab" : "Next iteration"}</button> : <button onClick={onCheck} className="rounded-lg bg-[#1865f2] px-5 py-2.5 text-xs font-bold text-[#ffffff]">Check answer</button>}</div>;
+  return <div className="flex items-center justify-between border-t border-[#d9e1e6] px-5 py-4 sm:px-7"><button onClick={onHint} className="text-sm text-[#647782] hover:text-[#9b6b16]">Need a hint?</button>{status === "correct" ? <button onClick={onNext} className="rounded-lg bg-[#14a36f] px-5 py-2.5 text-sm font-bold text-[#ffffff]">{last ? "Finish lab" : "Next iteration"}</button> : <button onClick={onCheck} className="rounded-lg bg-[#1865f2] px-5 py-2.5 text-sm font-bold text-[#ffffff]">Check answer</button>}</div>;
 }
 
 function Feedback({ kind, children }: { kind: "hint" | "wrong" | "correct"; children: React.ReactNode }) {
   const styles = { hint: "border-[#b7791f]/20 bg-[#b7791f]/[0.05] text-[#8a641f]", wrong: "border-[#c83e31]/20 bg-[#c83e31]/[0.06] text-[#a94437]", correct: "border-[#14a36f]/20 bg-[#14a36f]/[0.06] text-[#287c5e]" };
-  return <div className={`animate-in mt-5 rounded-lg border px-4 py-3 text-xs leading-5 ${styles[kind]}`}>{kind === "correct" && <Icon name="check" className="mr-2 inline h-3.5 w-3.5" />}{children}</div>;
+  return <div className={`animate-in mt-5 rounded-lg border px-4 py-3 text-sm leading-5 ${styles[kind]}`}>{kind === "correct" && <Icon name="check" className="mr-2 inline h-3.5 w-3.5" />}{children}</div>;
 }
 
 function LessonAside({ method, config }: { method: MethodId; config: HashConfig }) {
@@ -1031,25 +1031,25 @@ function LessonAside({ method, config }: { method: MethodId; config: HashConfig 
 }
 
 function AsideTitle({ children }: { children: React.ReactNode }) {
-  return <p className="mb-5 text-[10px] font-semibold uppercase tracking-[0.17em] text-[#71838e]">{children}</p>;
+  return <p className="mb-5 text-xs font-semibold uppercase tracking-[0.17em] text-[#71838e]">{children}</p>;
 }
 
 function AsideItem({ number, title, children }: { number: string; title: string; children: React.ReactNode }) {
-  return <div className="mb-6 flex gap-3"><span className="font-mono text-[10px] text-[#14a36f]">{number}</span><div><h3 className="mb-1 text-xs font-semibold text-[#405767]">{title}</h3><p className="text-[11px] leading-5 text-[#6b7d88]">{children}</p></div></div>;
+  return <div className="mb-6 flex gap-3"><span className="font-mono text-xs text-[#14a36f]">{number}</span><div><h3 className="mb-1 text-sm font-semibold text-[#405767]">{title}</h3><p className="text-[13px] leading-5 text-[#6b7d88]">{children}</p></div></div>;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-lg border border-[#d9e1e6] bg-[#f3f6f8] p-3"><span className="block text-[9px] text-[#6b7d88]">{label}</span><strong className="mt-1 block font-mono text-sm font-medium text-[#29404f]">{value}</strong></div>;
+  return <div className="rounded-lg border border-[#d9e1e6] bg-[#f3f6f8] p-3"><span className="block text-[11px] text-[#6b7d88]">{label}</span><strong className="mt-1 block font-mono text-sm font-medium text-[#29404f]">{value}</strong></div>;
 }
 
 function Complete({ title, onReset, onBack }: { title: string; onReset: () => void; onBack?: () => void }) {
   return (
-    <div className="animate-in flex min-h-[520px] flex-col items-center justify-center rounded-2xl border border-[#d9e1e6] bg-[#ffffff] px-6 text-center">
+    <div className="animate-in flex min-h-[580px] flex-col items-center justify-center rounded-2xl border border-[#d9e1e6] bg-[#ffffff] px-6 text-center">
       <span className="mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-[#14a36f] text-[#ffffff]"><Icon name="check" className="h-7 w-7" /></span>
-      <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#14a36f]">Lab complete</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#14a36f]">Lab complete</span>
       <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">{title}</h2>
       <p className="mt-3 max-w-sm text-sm leading-6 text-[#647782]">Every value was placed correctly. You can repeat this lab or continue exploring.</p>
-      <div className="mt-7 flex gap-2"><button onClick={onReset} className="rounded-lg border border-[#d9e1e6] px-4 py-2.5 text-xs text-[#536977]">Practice again</button>{onBack && <button onClick={onBack} className="rounded-lg bg-[#14a36f] px-4 py-2.5 text-xs font-bold text-[#ffffff]">All methods</button>}</div>
+      <div className="mt-7 flex gap-2"><button onClick={onReset} className="rounded-lg border border-[#d9e1e6] px-4 py-2.5 text-sm text-[#536977]">Practice again</button>{onBack && <button onClick={onBack} className="rounded-lg bg-[#14a36f] px-4 py-2.5 text-sm font-bold text-[#ffffff]">All methods</button>}</div>
     </div>
   );
 }
